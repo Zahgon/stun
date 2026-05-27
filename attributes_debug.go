@@ -6,8 +6,6 @@
 
 package stun
 
-import "fmt"
-
 // AttrOverflowErr occurs when len(v) > Max.
 type AttrOverflowErr struct {
 	Type AttrType
@@ -15,11 +13,7 @@ type AttrOverflowErr struct {
 	Got  int
 }
 
-func (e AttrOverflowErr) Error() string {
-	return fmt.Sprintf("incorrect length of %s attribute: %d exceeds maximum %d",
-		e.Type, e.Got, e.Max,
-	)
-}
+func (e AttrOverflowErr) Error() string { _ = "STUB: not implemented"; return "" }
 
 // AttrLengthErr means that length for attribute is invalid.
 type AttrLengthErr struct {
@@ -28,10 +22,4 @@ type AttrLengthErr struct {
 	Expected int
 }
 
-func (e AttrLengthErr) Error() string {
-	return fmt.Sprintf("incorrect length of %s attribute: got %d, expected %d",
-		e.Attr,
-		e.Got,
-		e.Expected,
-	)
-}
+func (e AttrLengthErr) Error() string { _ = "STUB: not implemented"; return "" }

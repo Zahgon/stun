@@ -6,60 +6,18 @@
 
 package stun
 
-import "github.com/pion/stun/v3/internal/hmac"
-
 // CheckSize returns *AttrLengthError if got is not equal to expected.
-func CheckSize(a AttrType, got, expected int) error {
-	if got == expected {
-		return nil
-	}
-	return &AttrLengthErr{
-		Got:      got,
-		Expected: expected,
-		Attr:     a,
-	}
-}
+func CheckSize(a AttrType, got, expected int) error { _ = "STUB: not implemented"; return nil }
 
-func checkHMAC(got, expected []byte) error {
-	if hmac.Equal(got, expected) {
-		return nil
-	}
-	return &IntegrityErr{
-		Expected: expected,
-		Actual:   got,
-	}
-}
+func checkHMAC(got, expected []byte) error { _ = "STUB: not implemented"; return nil }
 
-func checkFingerprint(got, expected uint32) error {
-	if got == expected {
-		return nil
-	}
-	return &CRCMismatch{
-		Actual:   got,
-		Expected: expected,
-	}
-}
+func checkFingerprint(got, expected uint32) error { _ = "STUB: not implemented"; return nil }
 
 // IsAttrSizeInvalid returns true if error means that attribute size is invalid.
-func IsAttrSizeInvalid(err error) bool {
-	_, ok := err.(*AttrLengthErr)
-	return ok
-}
+func IsAttrSizeInvalid(err error) bool { _ = "STUB: not implemented"; return false }
 
 // CheckOverflow returns *AttrOverflowErr if got is bigger that max.
-func CheckOverflow(t AttrType, got, max int) error {
-	if got <= max {
-		return nil
-	}
-	return &AttrOverflowErr{
-		Type: t,
-		Got:  got,
-		Max:  max,
-	}
-}
+func CheckOverflow(t AttrType, got, max int) error { _ = "STUB: not implemented"; return nil }
 
 // IsAttrSizeOverflow returns true if error means that attribute size is too big.
-func IsAttrSizeOverflow(err error) bool {
-	_, ok := err.(*AttrOverflowErr)
-	return ok
-}
+func IsAttrSizeOverflow(err error) bool { _ = "STUB: not implemented"; return false }

@@ -5,7 +5,6 @@ package stun
 
 import (
 	"errors"
-	"hash/crc32"
 )
 
 // FingerprintAttr represents FINGERPRINT attribute.
@@ -35,38 +34,21 @@ const (
 // up to (but excluding) the FINGERPRINT attribute itself, XOR'ed with
 // the 32-bit value 0x5354554e (the XOR helps in cases where an
 // application packet is also using CRC-32 in it).
-func FingerprintValue(b []byte) uint32 {
-	return crc32.ChecksumIEEE(b) ^ fingerprintXORValue // XOR
-}
+func FingerprintValue(b []byte) uint32 { _ = "STUB: not implemented"; return 0 }
+
+// XOR
 
 // AddTo adds fingerprint to message.
 func (FingerprintAttr) AddTo(m *Message) error {
-	l := m.Length
-	// length in header should include size of fingerprint attribute
-	m.Length += fingerprintSize + attributeHeaderSize // increasing length
-	m.WriteLength()                                   // writing Length to Raw
-	b := make([]byte, fingerprintSize)
-	val := FingerprintValue(m.Raw)
-	bin.PutUint32(b, val)
-	m.Length = l
-	m.Add(AttrFingerprint, b)
+	_ = "STUB: not implemented"
 
+	// length in header should include size of fingerprint attribute
 	return nil
 }
 
+// increasing length
+// writing Length to Raw
+
 // Check reads fingerprint value from m and checks it, returning error if any.
 // Can return *AttrLengthErr, ErrAttributeNotFound, and *CRCMismatch.
-func (FingerprintAttr) Check(m *Message) error {
-	b, err := m.Get(AttrFingerprint)
-	if err != nil {
-		return err
-	}
-	if err = CheckSize(AttrFingerprint, len(b), fingerprintSize); err != nil {
-		return err
-	}
-	val := bin.Uint32(b)
-	attrStart := len(m.Raw) - (fingerprintSize + attributeHeaderSize)
-	expected := FingerprintValue(m.Raw[:attrStart])
-
-	return checkFingerprint(val, expected)
-}
+func (FingerprintAttr) Check(m *Message) error { _ = "STUB: not implemented"; return nil }

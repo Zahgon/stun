@@ -36,59 +36,21 @@ type (
 //	m.Build(&t, &username, &nonce, &realm) // 0 allocations
 //
 // See BenchmarkBuildOverhead.
-func (m *Message) Build(setters ...Setter) error {
-	m.Reset()
-	m.WriteHeader()
-	for _, s := range setters {
-		if err := s.AddTo(m); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
+func (m *Message) Build(setters ...Setter) error { _ = "STUB: not implemented"; return nil }
 
 // Check applies checkers to message in batch, returning on first error.
-func (m *Message) Check(checkers ...Checker) error {
-	for _, c := range checkers {
-		if err := c.Check(m); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
+func (m *Message) Check(checkers ...Checker) error { _ = "STUB: not implemented"; return nil }
 
 // Parse applies getters to message in batch, returning on first error.
-func (m *Message) Parse(getters ...Getter) error {
-	for _, c := range getters {
-		if err := c.GetFrom(m); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
+func (m *Message) Parse(getters ...Getter) error { _ = "STUB: not implemented"; return nil }
 
 // MustBuild wraps Build call and panics on error.
-func MustBuild(setters ...Setter) *Message {
-	m, err := Build(setters...)
-	if err != nil {
-		panic(err) //nolint
-	}
+func MustBuild(setters ...Setter) *Message { _ = "STUB: not implemented"; return nil }
 
-	return m
-}
+//nolint
 
 // Build wraps Message.Build method.
-func Build(setters ...Setter) (*Message, error) {
-	m := new(Message)
-	if err := m.Build(setters...); err != nil {
-		return nil, err
-	}
-
-	return m, nil
-}
+func Build(setters ...Setter) (*Message, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // ForEach is helper that iterates over message attributes allowing to call
 // Getter in f callback to get all attributes of type t and returning on first
@@ -97,19 +59,6 @@ func Build(setters ...Setter) (*Message, error) {
 // The m.Get method inside f will be returning next attribute on each f call.
 // Does not error if there are no results.
 func (m *Message) ForEach(t AttrType, f func(m *Message) error) error {
-	attrs := m.Attributes
-	defer func() {
-		m.Attributes = attrs
-	}()
-	for i, a := range attrs {
-		if a.Type != t {
-			continue
-		}
-		m.Attributes = attrs[i:]
-		if err := f(m); err != nil {
-			return err
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }

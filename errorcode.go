@@ -5,8 +5,6 @@ package stun
 
 import (
 	"errors"
-	"fmt"
-	"io"
 )
 
 // ErrorCodeAttribute represents ERROR-CODE attribute.
@@ -17,9 +15,7 @@ type ErrorCodeAttribute struct {
 	Reason []byte
 }
 
-func (c ErrorCodeAttribute) String() string {
-	return fmt.Sprintf("%d: %s", c.Code, c.Reason)
-}
+func (c ErrorCodeAttribute) String() string { _ = "STUB: not implemented"; return "" }
 
 // constants for ERROR-CODE encoding.
 const (
@@ -32,47 +28,13 @@ const (
 )
 
 // AddTo adds ERROR-CODE to m.
-func (c ErrorCodeAttribute) AddTo(msg *Message) error {
-	value := make([]byte, 0, errorCodeReasonStart+errorCodeReasonMaxB)
-	if err := CheckOverflow(AttrErrorCode,
-		len(c.Reason)+errorCodeReasonStart,
-		errorCodeReasonMaxB+errorCodeReasonStart,
-	); err != nil {
-		return err
-	}
-	class := int(c.Code) / errorCodeModulo
-	number := int(c.Code) % errorCodeModulo
-	if class < 0 || class > errorCodeClassMax || number < 0 {
-		return errInvalidErrorCode
-	}
-	value = value[:errorCodeReasonStart+len(c.Reason)]
-	value[errorCodeClassByte] = byte(class)   // hundred digit
-	value[errorCodeNumberByte] = byte(number) // error code modulo 100
-	copy(value[errorCodeReasonStart:], c.Reason)
-	msg.Add(AttrErrorCode, value)
+func (c ErrorCodeAttribute) AddTo(msg *Message) error { _ = "STUB: not implemented"; return nil }
 
-	return nil
-}
+// hundred digit
+// error code modulo 100
 
 // GetFrom decodes ERROR-CODE from m. Reason is valid until m.Raw is valid.
-func (c *ErrorCodeAttribute) GetFrom(m *Message) error {
-	value, err := m.Get(AttrErrorCode)
-	if err != nil {
-		return err
-	}
-	if len(value) < errorCodeReasonStart {
-		return io.ErrUnexpectedEOF
-	}
-	var (
-		class  = uint16(value[errorCodeClassByte])
-		number = uint16(value[errorCodeNumberByte])
-		code   = int(class*errorCodeModulo + number)
-	)
-	c.Code = ErrorCode(code)
-	c.Reason = value[errorCodeReasonStart:]
-
-	return nil
-}
+func (c *ErrorCodeAttribute) GetFrom(m *Message) error { _ = "STUB: not implemented"; return nil }
 
 // ErrorCode is code for ERROR-CODE attribute.
 type ErrorCode int
@@ -83,18 +45,7 @@ var ErrNoDefaultReason = errors.New("no default reason for ErrorCode")
 
 // AddTo adds ERROR-CODE with default reason to m. If there
 // is no default reason, returns ErrNoDefaultReason.
-func (c ErrorCode) AddTo(m *Message) error {
-	reason := errorReasons[c]
-	if reason == nil {
-		return ErrNoDefaultReason
-	}
-	a := &ErrorCodeAttribute{
-		Code:   c,
-		Reason: reason,
-	}
-
-	return a.AddTo(m)
-}
+func (c ErrorCode) AddTo(m *Message) error { _ = "STUB: not implemented"; return nil }
 
 // Possible error codes.
 const (
@@ -175,11 +126,7 @@ type TurnError struct {
 }
 
 // Error returns the formatted TURN error message.
-func (e TurnError) Error() string {
-	return fmt.Sprintf("%s (error %s)", e.StunMessageType, e.ErrorCodeAttr.String())
-}
+func (e TurnError) Error() string { _ = "STUB: not implemented"; return "" }
 
 // String returns the error message as a string.
-func (e TurnError) String() string {
-	return e.Error()
-}
+func (e TurnError) String() string { _ = "STUB: not implemented"; return "" }

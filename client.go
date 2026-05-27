@@ -8,18 +8,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
-	"net"
-	"runtime"
-	"strconv"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/pion/dtls/v3"
 	"github.com/pion/logging"
 	"github.com/pion/transport/v4"
-	"github.com/pion/transport/v4/stdnet"
 )
 
 // ErrUnsupportedURI is an error thrown if the user passes an unsupported STUN or TURN URI.
@@ -27,14 +21,9 @@ var ErrUnsupportedURI = fmt.Errorf("invalid schema or transport")
 
 // Dial connects to the address on the named network and then
 // initializes Client on that connection, returning error if any.
-func Dial(network, address string) (*Client, error) {
-	conn, err := net.Dial(network, address) //nolint: noctx
-	if err != nil {
-		return nil, err
-	}
+func Dial(network, address string) (*Client, error) { _ = "STUB: not implemented"; return nil, nil }
 
-	return NewClient(conn)
-}
+//nolint: noctx
 
 // DialConfig is used to pass configuration to DialURI().
 type DialConfig struct {
@@ -46,71 +35,20 @@ type DialConfig struct {
 
 // DialURI connect to the STUN/TURN URI and then
 // initializes Client on that connection, returning error if any.
-func DialURI(uri *URI, cfg *DialConfig) (*Client, error) { //nolint:cyclop
-	var conn Connection
-	var err error
-
-	nw := cfg.Net
-	if nw == nil {
-		nw, err = stdnet.NewNet()
-		if err != nil {
-			return nil, fmt.Errorf("failed to create net: %w", err)
-		}
-	}
-
-	addr := net.JoinHostPort(uri.Host, strconv.Itoa(uri.Port))
-
-	switch {
-	case uri.Scheme == SchemeTypeSTUN:
-		if conn, err = nw.Dial("udp", addr); err != nil {
-			return nil, fmt.Errorf("failed to listen: %w", err)
-		}
-
-	case uri.Scheme == SchemeTypeTURN:
-		network := "udp" //nolint:goconst
-		if uri.Proto == ProtoTypeTCP {
-			network = "tcp" //nolint:goconst
-		}
-
-		if conn, err = nw.Dial(network, addr); err != nil {
-			return nil, fmt.Errorf("failed to dial: %w", err)
-		}
-
-	case uri.Scheme == SchemeTypeTURNS && uri.Proto == ProtoTypeUDP:
-		dtlsCfg := cfg.DTLSConfig // Copy
-		dtlsCfg.ServerName = uri.Host
-
-		udpAddr, err := net.ResolveUDPAddr("udp", addr)
-		if err != nil {
-			return nil, fmt.Errorf("failed to resolve UDPAddr: %w", err)
-		}
-
-		udpConn, err := nw.DialUDP("udp", nil, udpAddr)
-		if err != nil {
-			return nil, fmt.Errorf("failed to dial: %w", err)
-		}
-
-		if conn, err = dtls.Client(udpConn, udpConn.RemoteAddr(), &dtlsCfg); err != nil { //nolint:staticcheck
-			return nil, fmt.Errorf("failed to connect to '%s': %w", addr, err)
-		}
-
-	case (uri.Scheme == SchemeTypeTURNS || uri.Scheme == SchemeTypeSTUNS) && uri.Proto == ProtoTypeTCP:
-		tlsCfg := cfg.TLSConfig //nolint:govet, copylocks
-		tlsCfg.ServerName = uri.Host
-
-		tcpConn, err := nw.Dial("tcp", addr)
-		if err != nil {
-			return nil, fmt.Errorf("failed to dial: %w", err)
-		}
-
-		conn = tls.Client(tcpConn, &tlsCfg)
-
-	default:
-		return nil, ErrUnsupportedURI
-	}
-
-	return NewClient(conn)
+func DialURI(uri *URI, cfg *DialConfig) (*Client, error) {
+	_ = "STUB: not implemented" //nolint:cyclop
+	return nil, nil
 }
+
+//nolint:goconst
+
+//nolint:goconst
+
+// Copy
+
+//nolint:staticcheck
+
+//nolint:govet, copylocks
 
 // ErrNoConnection means that ClientOptions.Connection is nil.
 var ErrNoConnection = errors.New("no connection provided")
@@ -121,77 +59,45 @@ type ClientOption func(c *Client)
 // WithHandler sets client handler which is called if Agent emits the Event
 // with TransactionID that is not currently registered by Client.
 // Useful for handling Data indications from TURN server.
-func WithHandler(h Handler) ClientOption {
-	return func(c *Client) {
-		c.handler = h
-	}
-}
+func WithHandler(h Handler) ClientOption { _ = "STUB: not implemented"; return *new(ClientOption) }
 
 // WithRTO sets client RTO as defined in STUN RFC.
-func WithRTO(rto time.Duration) ClientOption {
-	return func(c *Client) {
-		c.rto = int64(rto)
-	}
-}
+func WithRTO(rto time.Duration) ClientOption { _ = "STUB: not implemented"; return *new(ClientOption) }
 
 // WithClock sets Clock of client, the source of current time.
 // Also clock is passed to default collector if set.
-func WithClock(clock Clock) ClientOption {
-	return func(c *Client) {
-		c.clock = clock
-	}
-}
+func WithClock(clock Clock) ClientOption { _ = "STUB: not implemented"; return *new(ClientOption) }
 
 // WithTimeoutRate sets RTO timer minimum resolution.
 func WithTimeoutRate(d time.Duration) ClientOption {
-	return func(c *Client) {
-		c.rtoRate = d
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientOption)
 }
 
 // WithAgent sets client STUN agent.
 //
 // Defaults to agent implementation in current package,
 // see agent.go.
-func WithAgent(a ClientAgent) ClientOption {
-	return func(c *Client) {
-		c.a = a
-	}
-}
+func WithAgent(a ClientAgent) ClientOption { _ = "STUB: not implemented"; return *new(ClientOption) }
 
 // WithCollector rests client timeout collector, the implementation
 // of ticker which calls function on each tick.
 func WithCollector(coll Collector) ClientOption {
-	return func(c *Client) {
-		c.collector = coll
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientOption)
 }
 
 // WithNoConnClose prevents client from closing underlying connection when
 // the Close() method is called.
-func WithNoConnClose() ClientOption {
-	return func(c *Client) {
-		c.closeConn = false
-	}
-}
+func WithNoConnClose() ClientOption { _ = "STUB: not implemented"; return *new(ClientOption) }
 
 // WithStrictMode sets strict decode behavior for messages decoded by the client.
-func WithStrictMode(strict bool) ClientOption {
-	return func(c *Client) {
-		c.strict = strict
-	}
-}
+func WithStrictMode(strict bool) ClientOption { _ = "STUB: not implemented"; return *new(ClientOption) }
 
 // WithLoggerFactory sets logger used by the client and decoded messages.
 func WithLoggerFactory(loggerFactory logging.LoggerFactory) ClientOption {
-	return func(c *Client) {
-		if loggerFactory == nil {
-			c.logger = nil
-
-			return
-		}
-		c.logger = loggerFactory.NewLogger("stun")
-	}
+	_ = "STUB: not implemented"
+	return *new(ClientOption)
 }
 
 // WithNoRetransmit disables retransmissions and sets RTO to
@@ -199,12 +105,7 @@ func WithLoggerFactory(loggerFactory logging.LoggerFactory) ClientOption {
 // if not set.
 //
 // Useful for TCP connections where transport handles RTO.
-func WithNoRetransmit(c *Client) {
-	c.maxAttempts = 0
-	if c.rto == 0 {
-		c.rto = defaultMaxAttempts * int64(defaultRTO)
-	}
-}
+func WithNoRetransmit(c *Client) { _ = "STUB: not implemented"; return }
 
 const (
 	defaultTimeoutRate = time.Millisecond * 5
@@ -224,61 +125,15 @@ const (
 // provide any API for it, so if you need to read application data, wrap the
 // connection with your (de-)multiplexer and pass the wrapper as conn.
 func NewClient(conn Connection, options ...ClientOption) (*Client, error) {
-	client := &Client{
-		close:       make(chan struct{}),
-		c:           conn,
-		clock:       systemClock(),
-		rto:         int64(defaultRTO),
-		rtoRate:     defaultTimeoutRate,
-		t:           make(map[transactionID]*clientTransaction, 100),
-		maxAttempts: defaultMaxAttempts,
-		closeConn:   true,
-	}
-	for _, o := range options {
-		o(client)
-	}
-	if client.c == nil {
-		return nil, ErrNoConnection
-	}
-	if client.a == nil {
-		client.a = NewAgent(nil)
-	}
-	if err := client.a.SetHandler(client.handleAgentCallback); err != nil {
-		return nil, err
-	}
-	if client.collector == nil {
-		client.collector = &tickerCollector{
-			close: make(chan struct{}),
-			clock: client.clock,
-		}
-	}
-	if err := client.collector.Start(client.rtoRate, func(t time.Time) {
-		closedOrPanic(client.a.Collect(t))
-	}); err != nil {
-		return nil, err
-	}
-	client.wg.Add(1)
-	go client.readUntilClosed()
-	runtime.SetFinalizer(client, clientFinalizer)
-
-	return client, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func clientFinalizer(c *Client) {
-	if c == nil {
-		return
-	}
-	err := c.Close()
-	if errors.Is(err, ErrClientClosed) {
-		return
-	}
-	if err == nil {
-		log.Println("client: called finalizer on non-closed client") // nolint
+func clientFinalizer(c *Client) { _ = "STUB: not implemented"; return }
 
-		return
-	}
-	log.Println("client: called finalizer on non-closed client:", err) // nolint
-}
+// nolint
+
+// nolint
 
 // Connection wraps Reader, Writer and Closer interfaces.
 type Connection interface {
@@ -334,11 +189,7 @@ type clientTransaction struct {
 	raw     []byte
 }
 
-func (t *clientTransaction) handle(e Event) {
-	if atomic.AddInt32(&t.calls, 1) == 1 {
-		t.h(e)
-	}
-}
+func (t *clientTransaction) handle(e Event) { _ = "STUB: not implemented"; return }
 
 var clientTransactionPool = &sync.Pool{ //nolint:gochecknoglobals
 	New: func() any {
@@ -348,39 +199,21 @@ var clientTransactionPool = &sync.Pool{ //nolint:gochecknoglobals
 	},
 }
 
-func acquireClientTransaction() *clientTransaction {
-	return clientTransactionPool.Get().(*clientTransaction) //nolint:forcetypeassert
-}
+func acquireClientTransaction() *clientTransaction { _ = "STUB: not implemented"; return nil }
 
-func putClientTransaction(t *clientTransaction) {
-	t.raw = t.raw[:0]
-	t.start = time.Time{}
-	t.attempt = 0
-	t.id = transactionID{}
-	clientTransactionPool.Put(t)
-}
+//nolint:forcetypeassert
+
+func putClientTransaction(t *clientTransaction) { _ = "STUB: not implemented"; return }
 
 func (t *clientTransaction) nextTimeout(now time.Time) time.Time {
-	return now.Add(time.Duration(t.attempt+1) * t.rto)
+	_ = "STUB: not implemented"
+	return *new(time.Time)
 }
 
 // start registers transaction.
 //
 // Could return ErrClientClosed, ErrTransactionExists.
-func (c *Client) start(t *clientTransaction) error {
-	c.mux.Lock()
-	defer c.mux.Unlock()
-	if c.closed {
-		return ErrClientClosed
-	}
-	_, exists := c.t[t.id]
-	if exists {
-		return ErrTransactionExists
-	}
-	c.t[t.id] = t
-
-	return nil
-}
+func (c *Client) start(t *clientTransaction) error { _ = "STUB: not implemented"; return nil }
 
 // Clock abstracts the source of current time.
 type Clock interface {
@@ -389,16 +222,12 @@ type Clock interface {
 
 type systemClockService struct{}
 
-func (systemClockService) Now() time.Time { return time.Now() }
+func (systemClockService) Now() time.Time { _ = "STUB: not implemented"; return *new(time.Time) }
 
-func systemClock() systemClockService {
-	return systemClockService{}
-}
+func systemClock() systemClockService { _ = "STUB: not implemented"; return *new(systemClockService) }
 
 // SetRTO sets current RTO value.
-func (c *Client) SetRTO(rto time.Duration) {
-	atomic.StoreInt64(&c.rto, int64(rto))
-}
+func (c *Client) SetRTO(rto time.Duration) { _ = "STUB: not implemented"; return }
 
 // StopErr occurs when Client fails to stop transaction while
 // processing error.
@@ -409,9 +238,7 @@ type StopErr struct {
 	Cause error // error that caused Stop() call
 }
 
-func (e StopErr) Error() string {
-	return fmt.Sprintf("error while stopping due to %s: %s", sprintErr(e.Cause), sprintErr(e.Err))
-}
+func (e StopErr) Error() string { _ = "STUB: not implemented"; return "" }
 
 // CloseErr indicates client close failure.
 //
@@ -421,49 +248,17 @@ type CloseErr struct {
 	ConnectionErr error
 }
 
-func sprintErr(err error) string {
-	if err == nil {
-		return "<nil>" //nolint:goconst
-	}
+func sprintErr(err error) string { _ = "STUB: not implemented"; return "" }
 
-	return err.Error()
-}
+//nolint:goconst
 
-func (c CloseErr) Error() string {
-	return fmt.Sprintf("failed to close: %s (connection), %s (agent)", sprintErr(c.ConnectionErr), sprintErr(c.AgentErr))
-}
+func (c CloseErr) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (c *Client) readUntilClosed() {
-	defer c.wg.Done()
-	options := []MessageOption{
-		WithStrict(c.strict),
-	}
-	if c.logger != nil {
-		options = append(options, withMessageLogger(c.logger))
-	}
-	m := NewWithOptions(options...)
-	m.Raw = make([]byte, 1024)
-	for {
-		select {
-		case <-c.close:
-			return
-		default:
-		}
-		_, err := m.ReadFrom(c.c)
-		if err == nil {
-			if pErr := c.a.Process(m); errors.Is(pErr, ErrAgentClosed) {
-				return
-			}
-		}
-	}
-}
+func (c *Client) readUntilClosed() { _ = "STUB: not implemented"; return }
 
-func closedOrPanic(err error) {
-	if err == nil || errors.Is(err, ErrAgentClosed) {
-		return
-	}
-	panic(err) //nolint
-}
+func closedOrPanic(err error) { _ = "STUB: not implemented"; return }
+
+//nolint
 
 type tickerCollector struct {
 	close chan struct{}
@@ -480,73 +275,21 @@ type Collector interface {
 }
 
 func (a *tickerCollector) Start(rate time.Duration, f func(now time.Time)) error {
-	t := time.NewTicker(rate)
-	a.wg.Add(1)
-	go func() {
-		defer a.wg.Done()
-		for {
-			select {
-			case <-a.close:
-				t.Stop()
-
-				return
-			case <-t.C:
-				f(a.clock.Now())
-			}
-		}
-	}()
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (a *tickerCollector) Close() error {
-	close(a.close)
-	a.wg.Wait()
-
-	return nil
-}
+func (a *tickerCollector) Close() error { _ = "STUB: not implemented"; return nil }
 
 // ErrClientClosed indicates that client is closed.
 var ErrClientClosed = errors.New("client is closed")
 
 // Close stops internal connection and agent, returning CloseErr on error.
-func (c *Client) Close() error {
-	if err := c.checkInit(); err != nil {
-		return err
-	}
-	c.mux.Lock()
-	if c.closed {
-		c.mux.Unlock()
-
-		return ErrClientClosed
-	}
-	c.closed = true
-	c.mux.Unlock()
-	if closeErr := c.collector.Close(); closeErr != nil {
-		return closeErr
-	}
-	var connErr error
-	agentErr := c.a.Close()
-	if c.closeConn {
-		connErr = c.c.Close()
-	}
-	close(c.close)
-	c.wg.Wait()
-	if agentErr == nil && connErr == nil {
-		return nil
-	}
-
-	return CloseErr{
-		AgentErr:      agentErr,
-		ConnectionErr: connErr,
-	}
-}
+func (c *Client) Close() error { _ = "STUB: not implemented"; return nil }
 
 // Indicate sends indication m to server. Shorthand to Start call
 // with zero deadline and callback.
-func (c *Client) Indicate(m *Message) error {
-	return c.Start(m, nil)
-}
+func (c *Client) Indicate(m *Message) error { _ = "STUB: not implemented"; return nil }
 
 // callbackWaitHandler blocks on wait() call until callback is called.
 type callbackWaitHandler struct {
@@ -556,38 +299,15 @@ type callbackWaitHandler struct {
 	processed bool
 }
 
-func (s *callbackWaitHandler) HandleEvent(e Event) {
-	s.cond.L.Lock()
-	if s.callback == nil {
-		panic("s.callback is nil") //nolint
-	}
-	s.callback(e)
-	s.processed = true
-	s.cond.Broadcast()
-	s.cond.L.Unlock()
-}
+func (s *callbackWaitHandler) HandleEvent(e Event) { _ = "STUB: not implemented"; return }
 
-func (s *callbackWaitHandler) wait() {
-	s.cond.L.Lock()
-	for !s.processed {
-		s.cond.Wait()
-	}
-	s.processed = false
-	s.callback = nil
-	s.cond.L.Unlock()
-}
+//nolint
 
-func (s *callbackWaitHandler) setCallback(f func(event Event)) {
-	if f == nil {
-		panic("f is nil") //nolint
-	}
-	s.cond.L.Lock()
-	s.callback = f
-	if s.handler == nil {
-		s.handler = s.HandleEvent
-	}
-	s.cond.L.Unlock()
-}
+func (s *callbackWaitHandler) wait() { _ = "STUB: not implemented"; return }
+
+func (s *callbackWaitHandler) setCallback(f func(event Event)) { _ = "STUB: not implemented"; return }
+
+//nolint
 
 var callbackWaitHandlerPool = sync.Pool{ //nolint:gochecknoglobals
 	New: func() any {
@@ -600,46 +320,18 @@ var callbackWaitHandlerPool = sync.Pool{ //nolint:gochecknoglobals
 // ErrClientNotInitialized means that client connection or agent is nil.
 var ErrClientNotInitialized = errors.New("client not initialized")
 
-func (c *Client) checkInit() error {
-	if c == nil || c.c == nil || c.a == nil || c.close == nil {
-		return ErrClientNotInitialized
-	}
-
-	return nil
-}
+func (c *Client) checkInit() error { _ = "STUB: not implemented"; return nil }
 
 // Do is Start wrapper that waits until callback is called. If no callback
 // provided, Indicate is called instead.
 //
 // Do has cpu overhead due to blocking, see BenchmarkClient_Do.
 // Use Start method for less overhead.
-func (c *Client) Do(m *Message, f func(Event)) error {
-	if err := c.checkInit(); err != nil {
-		return err
-	}
-	if f == nil {
-		return c.Indicate(m)
-	}
-	h := callbackWaitHandlerPool.Get().(*callbackWaitHandler) //nolint:forcetypeassert
-	h.setCallback(f)
-	defer func() {
-		callbackWaitHandlerPool.Put(h)
-	}()
-	if err := c.Start(m, h.handler); err != nil {
-		return err
-	}
-	h.wait()
+func (c *Client) Do(m *Message, f func(Event)) error { _ = "STUB: not implemented"; return nil }
 
-	return nil
-}
+//nolint:forcetypeassert
 
-func (c *Client) delete(id transactionID) {
-	c.mux.Lock()
-	if c.t != nil {
-		delete(c.t, id)
-	}
-	c.mux.Unlock()
-}
+func (c *Client) delete(id transactionID) { _ = "STUB: not implemented"; return }
 
 type buffer struct {
 	buf []byte
@@ -651,123 +343,35 @@ var bufferPool = &sync.Pool{ //nolint:gochecknoglobals
 	},
 }
 
-func (c *Client) handleAgentCallback(event Event) { //nolint:cyclop
-	c.mux.Lock()
-	if c.closed {
-		c.mux.Unlock()
-
-		return
-	}
-	transaction, found := c.t[event.TransactionID]
-	if found {
-		delete(c.t, transaction.id)
-	}
-	c.mux.Unlock()
-	if !found {
-		if c.handler != nil && !errors.Is(event.Error, ErrTransactionStopped) {
-			c.handler(event)
-		}
-		// Ignoring.
-		return
-	}
-	if atomic.LoadInt32(&c.maxAttempts) <= transaction.attempt || event.Error == nil {
-		// Transaction completed.
-		transaction.handle(event)
-		putClientTransaction(transaction)
-
-		return
-	}
-	// Doing re-transmission.
-	transaction.attempt++
-	buff := bufferPool.Get().(*buffer) //nolint:forcetypeassert
-	buff.buf = buff.buf[:copy(buff.buf[:cap(buff.buf)], transaction.raw)]
-	defer bufferPool.Put(buff)
-	var (
-		now     = c.clock.Now()
-		timeOut = transaction.nextTimeout(now)
-		id      = transaction.id
-	)
-	// Starting client transaction.
-	if startErr := c.start(transaction); startErr != nil {
-		c.delete(id)
-		event.Error = startErr
-		transaction.handle(event)
-		putClientTransaction(transaction)
-
-		return
-	}
-	// Starting agent transaction.
-	if startErr := c.a.Start(id, timeOut); startErr != nil {
-		c.delete(id)
-		event.Error = startErr
-		transaction.handle(event)
-		putClientTransaction(transaction)
-
-		return
-	}
-	// Writing message to connection again.
-	_, writeErr := c.c.Write(buff.buf)
-	if writeErr != nil {
-		c.delete(id)
-		event.Error = writeErr
-		// Stopping agent transaction instead of waiting until it's deadline.
-		// This will call handleAgentCallback with "ErrTransactionStopped" error
-		// which will be ignored.
-		if stopErr := c.a.Stop(id); stopErr != nil {
-			// Failed to stop agent transaction. Wrapping the error in StopError.
-			event.Error = StopErr{
-				Err:   stopErr,
-				Cause: writeErr,
-			}
-		}
-		transaction.handle(event)
-		putClientTransaction(transaction)
-
-		return
-	}
+func (c *Client) handleAgentCallback(event Event) {
+	_ = "STUB: not implemented" //nolint:cyclop
+	return
 }
+
+// Ignoring.
+
+// Transaction completed.
+
+// Doing re-transmission.
+
+//nolint:forcetypeassert
+
+// Starting client transaction.
+
+// Starting agent transaction.
+
+// Writing message to connection again.
+
+// Stopping agent transaction instead of waiting until it's deadline.
+// This will call handleAgentCallback with "ErrTransactionStopped" error
+// which will be ignored.
+
+// Failed to stop agent transaction. Wrapping the error in StopError.
 
 // Start starts transaction (if h set) and writes message to server, handler
 // is called asynchronously.
-func (c *Client) Start(msg *Message, handler Handler) error {
-	if err := c.checkInit(); err != nil {
-		return err
-	}
-	c.mux.RLock()
-	closed := c.closed
-	c.mux.RUnlock()
-	if closed {
-		return ErrClientClosed
-	}
-	if handler != nil {
-		// Starting transaction only if h is set. Useful for indications.
-		t := acquireClientTransaction()
-		t.id = msg.TransactionID
-		t.start = c.clock.Now()
-		t.h = handler
-		t.rto = time.Duration(atomic.LoadInt64(&c.rto))
-		t.attempt = 0
-		t.raw = append(t.raw[:0], msg.Raw...)
-		t.calls = 0
-		d := t.nextTimeout(t.start)
-		if err := c.start(t); err != nil {
-			return err
-		}
-		if err := c.a.Start(msg.TransactionID, d); err != nil {
-			return err
-		}
-	}
-	_, err := msg.WriteTo(c.c)
-	if err != nil && handler != nil {
-		c.delete(msg.TransactionID)
-		// Stopping transaction instead of waiting until deadline.
-		if stopErr := c.a.Stop(msg.TransactionID); stopErr != nil {
-			return StopErr{
-				Err:   stopErr,
-				Cause: err,
-			}
-		}
-	}
+func (c *Client) Start(msg *Message, handler Handler) error { _ = "STUB: not implemented"; return nil }
 
-	return err
-}
+// Starting transaction only if h is set. Useful for indications.
+
+// Stopping transaction instead of waiting until deadline.

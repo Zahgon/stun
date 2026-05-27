@@ -15,24 +15,16 @@ type DecodeErr struct {
 
 // IsInvalidCookie returns true if error means that magic cookie
 // value is invalid.
-func (e DecodeErr) IsInvalidCookie() bool {
-	return e.Place == DecodeErrPlace{"message", "cookie"}
-}
+func (e DecodeErr) IsInvalidCookie() bool { _ = "STUB: not implemented"; return false }
 
 // IsPlaceParent reports if error place parent is p.
-func (e DecodeErr) IsPlaceParent(p string) bool {
-	return e.Place.Parent == p
-}
+func (e DecodeErr) IsPlaceParent(p string) bool { _ = "STUB: not implemented"; return false }
 
 // IsPlaceChildren reports if error place children is c.
-func (e DecodeErr) IsPlaceChildren(c string) bool {
-	return e.Place.Children == c
-}
+func (e DecodeErr) IsPlaceChildren(c string) bool { _ = "STUB: not implemented"; return false }
 
 // IsPlace reports if error place is p.
-func (e DecodeErr) IsPlace(p DecodeErrPlace) bool {
-	return e.Place == p
-}
+func (e DecodeErr) IsPlace(p DecodeErrPlace) bool { _ = "STUB: not implemented"; return false }
 
 // DecodeErrPlace records a place where error is occurred.
 type DecodeErrPlace struct {
@@ -40,24 +32,16 @@ type DecodeErrPlace struct {
 	Children string
 }
 
-func (p DecodeErrPlace) String() string {
-	return p.Parent + "/" + p.Children
-}
+func (p DecodeErrPlace) String() string { _ = "STUB: not implemented"; return "" }
 
-func (e DecodeErr) Error() string {
-	return "BadFormat for " + e.Place.String() + ": " + e.Message
-}
+func (e DecodeErr) Error() string { _ = "STUB: not implemented"; return "" }
 
 func newDecodeErr(parent, children, message string) *DecodeErr {
-	return &DecodeErr{
-		Place:   DecodeErrPlace{Parent: parent, Children: children},
-		Message: message,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func newAttrDecodeErr(children, message string) *DecodeErr {
-	return newDecodeErr("attribute", children, message)
-}
+func newAttrDecodeErr(children, message string) *DecodeErr { _ = "STUB: not implemented"; return nil }
 
 // ErrAttributeSizeInvalid means that decoded attribute size is invalid.
 var ErrAttributeSizeInvalid = errors.New("attribute size is invalid")

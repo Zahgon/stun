@@ -5,7 +5,6 @@ package stun
 
 import (
 	"errors"
-	"fmt"
 )
 
 // Attributes is list of message attributes.
@@ -16,13 +15,8 @@ type Attributes []RawAttribute
 // boolean is true. Otherwise the returned RawAttribute will be
 // empty and boolean will be false.
 func (a Attributes) Get(t AttrType) (RawAttribute, bool) {
-	for _, candidate := range a {
-		if candidate.Type == t {
-			return candidate, true
-		}
-	}
-
-	return RawAttribute{}, false
+	_ = "STUB: not implemented"
+	return *new(RawAttribute), false
 }
 
 // AttrType is attribute type.
@@ -30,15 +24,19 @@ type AttrType uint16
 
 // Required returns true if type is from comprehension-required range (0x0000-0x7FFF).
 func (t AttrType) Required() bool {
-	return t <= 0x7FFF
+	_ = "STUB: not implemented"
+
+	// Optional returns true if type is from comprehension-optional range (0x8000-0xFFFF).
+	return false
 }
 
-// Optional returns true if type is from comprehension-optional range (0x8000-0xFFFF).
 func (t AttrType) Optional() bool {
-	return t >= 0x8000
+	_ = "STUB: not implemented"
+
+	// Attributes from comprehension-required range (0x0000-0x7FFF).
+	return false
 }
 
-// Attributes from comprehension-required range (0x0000-0x7FFF).
 const (
 	AttrMappedAddress     AttrType = 0x0001 // MAPPED-ADDRESS
 	AttrUsername          AttrType = 0x0006 // USERNAME
@@ -127,65 +125,17 @@ const (
 )
 
 // Value returns uint16 representation of attribute type.
-func (t AttrType) Value() uint16 {
-	return uint16(t)
-}
+func (t AttrType) Value() uint16 { _ = "STUB: not implemented"; return 0 }
 
-func attrNames() map[AttrType]string {
-	return map[AttrType]string{
-		AttrMappedAddress:          "MAPPED-ADDRESS",
-		AttrUsername:               "USERNAME",
-		AttrErrorCode:              "ERROR-CODE",
-		AttrMessageIntegrity:       "MESSAGE-INTEGRITY",
-		AttrUnknownAttributes:      "UNKNOWN-ATTRIBUTES",
-		AttrRealm:                  "REALM",
-		AttrNonce:                  "NONCE",
-		AttrXORMappedAddress:       "XOR-MAPPED-ADDRESS",
-		AttrSoftware:               "SOFTWARE",
-		AttrAlternateServer:        "ALTERNATE-SERVER",
-		AttrFingerprint:            "FINGERPRINT",
-		AttrPriority:               "PRIORITY",
-		AttrUseCandidate:           "USE-CANDIDATE",
-		AttrICEControlled:          "ICE-CONTROLLED",
-		AttrICEControlling:         "ICE-CONTROLLING",
-		AttrChannelNumber:          "CHANNEL-NUMBER",
-		AttrLifetime:               "LIFETIME",
-		AttrXORPeerAddress:         "XOR-PEER-ADDRESS",
-		AttrData:                   "DATA",
-		AttrXORRelayedAddress:      "XOR-RELAYED-ADDRESS",
-		AttrEvenPort:               "EVEN-PORT",
-		AttrRequestedTransport:     "REQUESTED-TRANSPORT",
-		AttrDontFragment:           "DONT-FRAGMENT",
-		AttrReservationToken:       "RESERVATION-TOKEN",
-		AttrConnectionID:           "CONNECTION-ID",
-		AttrRequestedAddressFamily: "REQUESTED-ADDRESS-FAMILY",
-		AttrMessageIntegritySHA256: "MESSAGE-INTEGRITY-SHA256",
-		AttrPasswordAlgorithm:      "PASSWORD-ALGORITHM",
-		AttrUserhash:               "USERHASH",
-		AttrPasswordAlgorithms:     "PASSWORD-ALGORITHMS",
-		AttrAlternateDomain:        "ALTERNATE-DOMAIN",
-		AttrDtlsInStun:             "DTLS-IN-STUN",
-		AttrDtlsInStunAck:          "DTLS-IN-STUN-ACKNOWLEDGEMENT",
-	}
-}
+func attrNames() map[AttrType]string { _ = "STUB: not implemented"; return nil }
 
-func (t AttrType) String() string {
-	s, ok := attrNames()[t]
-	if !ok {
-		// Just return hex representation of unknown attribute type.
-		return fmt.Sprintf("0x%x", uint16(t))
-	}
+func (t AttrType) String() string { _ = "STUB: not implemented"; return "" }
 
-	return s
-}
+// Just return hex representation of unknown attribute type.
 
 // Known returns true if AttrType is known and implemented
 // by this library.
-func (t AttrType) Known() bool {
-	_, valid := attrNames()[t]
-
-	return valid
-}
+func (t AttrType) Known() bool { _ = "STUB: not implemented"; return false }
 
 // RawAttribute is a Type-Length-Value (TLV) object that
 // can be added to a STUN message. Attributes are divided into two
@@ -202,35 +152,12 @@ type RawAttribute struct {
 
 // AddTo implements Setter, adding attribute as a.Type with a.Value and ignoring
 // the Length field.
-func (a RawAttribute) AddTo(m *Message) error {
-	m.Add(a.Type, a.Value)
-
-	return nil
-}
+func (a RawAttribute) AddTo(m *Message) error { _ = "STUB: not implemented"; return nil }
 
 // Equal returns true if a == b.
-func (a RawAttribute) Equal(b RawAttribute) bool {
-	if a.Type != b.Type {
-		return false
-	}
-	if a.Length != b.Length {
-		return false
-	}
-	if len(b.Value) != len(a.Value) {
-		return false
-	}
-	for i, v := range a.Value {
-		if b.Value[i] != v {
-			return false
-		}
-	}
+func (a RawAttribute) Equal(b RawAttribute) bool { _ = "STUB: not implemented"; return false }
 
-	return true
-}
-
-func (a RawAttribute) String() string {
-	return fmt.Sprintf("%s: 0x%x", a.Type, a.Value)
-}
+func (a RawAttribute) String() string { _ = "STUB: not implemented"; return "" }
 
 // ErrAttributeNotFound means that attribute with provided attribute
 // type does not exist in message.
@@ -239,14 +166,7 @@ var ErrAttributeNotFound = errors.New("attribute not found")
 // Get returns byte slice that represents attribute value,
 // if there is no attribute with such type,
 // ErrAttributeNotFound is returned.
-func (m *Message) Get(t AttrType) ([]byte, error) {
-	v, ok := m.Attributes.Get(t)
-	if !ok {
-		return nil, ErrAttributeNotFound
-	}
-
-	return v.Value, nil
-}
+func (m *Message) Get(t AttrType) ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // STUN aligns attributes on 32-bit boundaries, attributes whose content
 // is not a multiple of 4 bytes are padded with 1, 2, or 3 bytes of
@@ -256,22 +176,15 @@ func (m *Message) Get(t AttrType) ([]byte, error) {
 // https://tools.ietf.org/html/rfc5389#section-15
 const padding = 4
 
-func nearestPaddedValueLength(l int) int {
-	n := padding * (l / padding)
-	if n < l {
-		n += padding
-	}
-
-	return n
-}
+func nearestPaddedValueLength(l int) int { _ = "STUB: not implemented"; return 0 }
 
 // This method converts an uint16 value to AttrType. If it finds an old attribute
 // type value, it also translates it to the new value to enable backward
 // compatibility. (See: https://github.com/pion/stun/issues/21)
 func compatAttrType(val uint16) AttrType {
-	if val == 0x8020 { // draft-ietf-behave-rfc3489bis-02, MS-TURN
-		return AttrXORMappedAddress // new: 0x0020 (from draft-ietf-behave-rfc3489bis-03 on)
-	}
-
-	return AttrType(val)
+	_ = "STUB: not implemented"
+	// draft-ietf-behave-rfc3489bis-02, MS-TURN
+	return *new(AttrType)
 }
+
+// new: 0x0020 (from draft-ietf-behave-rfc3489bis-03 on)

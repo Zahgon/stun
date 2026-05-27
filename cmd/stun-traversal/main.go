@@ -5,13 +5,9 @@
 package main
 
 import (
-	"bufio"
 	"flag"
-	"fmt"
 	"log"
 	"net"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/pion/stun/v3"
@@ -140,60 +136,21 @@ func main() { //nolint:gocognit,cyclop
 	}
 }
 
-func getPeerAddr() <-chan string {
-	result := make(chan string)
+func getPeerAddr() <-chan string { _ = "STUB: not implemented"; return nil }
 
-	go func() {
-		reader := bufio.NewReader(os.Stdin)
-		log.Println("Enter remote peer address:")
-		peer, _ := reader.ReadString('\n')
-		result <- strings.Trim(peer, " \r\n")
-	}()
-
-	return result
-}
-
-func listen(conn *net.UDPConn) <-chan []byte {
-	messages := make(chan []byte)
-	go func() {
-		for {
-			buf := make([]byte, 1024)
-
-			n, _, err := conn.ReadFromUDP(buf)
-			if err != nil {
-				close(messages)
-
-				return
-			}
-			buf = buf[:n]
-
-			messages <- buf
-		}
-	}()
-
-	return messages
-}
+func listen(conn *net.UDPConn) <-chan []byte { _ = "STUB: not implemented"; return nil }
 
 func sendBindingRequest(conn *net.UDPConn, addr *net.UDPAddr) error {
-	m := stun.MustBuild(stun.TransactionID, stun.BindingRequest)
-
-	err := send(m.Raw, conn, addr)
-	if err != nil {
-		return fmt.Errorf("binding: %w", err)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func send(msg []byte, conn *net.UDPConn, addr *net.UDPAddr) error {
-	_, err := conn.WriteToUDP(msg, addr)
-	if err != nil {
-		return fmt.Errorf("send: %w", err)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func sendStr(msg string, conn *net.UDPConn, addr *net.UDPAddr) error {
-	return send([]byte(msg), conn, addr)
+	_ = "STUB: not implemented"
+	return nil
 }

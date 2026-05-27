@@ -21,7 +21,6 @@ timing side-channels:
 package hmac
 
 import (
-	"crypto/subtle"
 	"hash"
 )
 
@@ -51,108 +50,57 @@ type hmac struct {
 	marshaled bool
 }
 
-func (h *hmac) Sum(in []byte) []byte {
-	origLen := len(in)
-	in = h.inner.Sum(in)
+func (h *hmac) Sum(in []byte) []byte { _ = "STUB: not implemented"; return nil }
 
-	if h.marshaled {
-		if err := h.outer.(marshalable).UnmarshalBinary(h.opad); err != nil { //nolint:forcetypeassert
-			panic(err) //nolint
-		}
-	} else {
-		h.outer.Reset()
-		h.outer.Write(h.opad) //nolint:errcheck,gosec
-	}
-	h.outer.Write(in[origLen:]) //nolint:errcheck,gosec
+//nolint:forcetypeassert
+//nolint
 
-	return h.outer.Sum(in[:origLen])
-}
+//nolint:errcheck,gosec
 
-func (h *hmac) Write(p []byte) (n int, err error) {
-	return h.inner.Write(p)
-}
+//nolint:errcheck,gosec
 
-func (h *hmac) Size() int      { return h.outer.Size() }
-func (h *hmac) BlockSize() int { return h.inner.BlockSize() }
+func (h *hmac) Write(p []byte) (n int, err error) { _ = "STUB: not implemented"; return 0, nil }
 
-func (h *hmac) Reset() {
-	if h.marshaled {
-		if err := h.inner.(marshalable).UnmarshalBinary(h.ipad); err != nil { //nolint:forcetypeassert
-			panic(err) //nolint
-		}
+func (h *hmac) Size() int      { _ = "STUB: not implemented"; return 0 }
+func (h *hmac) BlockSize() int { _ = "STUB: not implemented"; return 0 }
 
-		return
-	}
+func (h *hmac) Reset() { _ = "STUB: not implemented"; return }
 
-	h.inner.Reset()
-	h.inner.Write(h.ipad) //nolint:errcheck,gosec
+//nolint:forcetypeassert
+//nolint
 
-	// If the underlying hash is marshalable, we can save some time by
-	// saving a copy of the hash state now, and restoring it on future
-	// calls to Reset and Sum instead of writing ipad/opad every time.
-	//
-	// If either hash is unmarshalable for whatever reason,
-	// it's safe to bail out here.
-	marshalableInner, innerOK := h.inner.(marshalable)
-	if !innerOK {
-		return
-	}
-	marshalableOuter, outerOK := h.outer.(marshalable)
-	if !outerOK {
-		return
-	}
+//nolint:errcheck,gosec
 
-	imarshal, err := marshalableInner.MarshalBinary()
-	if err != nil {
-		return
-	}
+// If the underlying hash is marshalable, we can save some time by
+// saving a copy of the hash state now, and restoring it on future
+// calls to Reset and Sum instead of writing ipad/opad every time.
+//
+// If either hash is unmarshalable for whatever reason,
+// it's safe to bail out here.
 
-	h.outer.Reset()
-	h.outer.Write(h.opad) //nolint:errcheck,gosec
-	omarshal, err := marshalableOuter.MarshalBinary()
-	if err != nil {
-		return
-	}
+//nolint:errcheck,gosec
 
-	// Marshaling succeeded; save the marshaled state for later
-	h.ipad = imarshal
-	h.opad = omarshal
-	h.marshaled = true
-}
+// Marshaling succeeded; save the marshaled state for later
 
 // New returns a new HMAC hash using the given hash.Hash type and key.
 // Note that unlike other hash implementations in the standard library,
 // the returned Hash does not implement encoding.BinaryMarshaler
 // or encoding.BinaryUnmarshaler.
 func New(h func() hash.Hash, key []byte) hash.Hash {
-	hm := new(hmac)
-	hm.outer = h()
-	hm.inner = h()
-	blocksize := hm.inner.BlockSize()
-	hm.ipad = make([]byte, blocksize)
-	hm.opad = make([]byte, blocksize)
-	if len(key) > blocksize {
-		// If key is too big, hash it.
-		hm.outer.Write(key) //nolint:errcheck,gosec
-		key = hm.outer.Sum(nil)
-	}
-	copy(hm.ipad, key)
-	copy(hm.opad, key)
-	for i := range hm.ipad {
-		hm.ipad[i] ^= 0x36
-	}
-	for i := range hm.opad {
-		hm.opad[i] ^= 0x5c
-	}
-	hm.inner.Write(hm.ipad) //nolint:errcheck,gosec
-
-	return hm
+	_ = "STUB: not implemented"
+	return *new(hash.Hash)
 }
+
+// If key is too big, hash it.
+//nolint:errcheck,gosec
+
+//nolint:errcheck,gosec
 
 // Equal compares two MACs for equality without leaking timing information.
 func Equal(mac1, mac2 []byte) bool {
+	_ = "STUB: not implemented"
 	// We don't have to be constant time if the lengths of the MACs are
 	// different as that suggests that a completely different hash function
 	// was used.
-	return subtle.ConstantTimeCompare(mac1, mac2) == 1
+	return false
 }

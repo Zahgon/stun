@@ -11,22 +11,15 @@ import (
 
 // NoopHandler just discards any event.
 func NoopHandler() Handler {
-	return func(Event) {}
+	_ = "STUB: not implemented"
+	return *
+
+	// NewAgent initializes and returns new Agent with provided handler.
+	// If h is nil, the NoopHandler will be used.
+	new(Handler)
 }
 
-// NewAgent initializes and returns new Agent with provided handler.
-// If h is nil, the NoopHandler will be used.
-func NewAgent(h Handler) *Agent {
-	if h == nil {
-		h = NoopHandler()
-	}
-	a := &Agent{
-		transactions: make(map[transactionID]agentTransaction),
-		handler:      h,
-	}
-
-	return a
-}
+func NewAgent(h Handler) *Agent { _ = "STUB: not implemented"; return nil }
 
 // Agent is low-level abstraction over transaction list that
 // handles concurrency (all calls are goroutine-safe) and
@@ -78,32 +71,13 @@ var (
 // StopWithError removes transaction from list and calls handler with
 // provided error. Can return ErrTransactionNotExists and ErrAgentClosed.
 func (a *Agent) StopWithError(id [TransactionIDSize]byte, err error) error {
-	a.mux.Lock()
-	if a.closed {
-		a.mux.Unlock()
-
-		return ErrAgentClosed
-	}
-	t, exists := a.transactions[id]
-	delete(a.transactions, id)
-	h := a.handler
-	a.mux.Unlock()
-	if !exists {
-		return ErrTransactionNotExists
-	}
-	h(Event{
-		TransactionID: t.id,
-		Error:         err,
-	})
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // Stop stops transaction by id with ErrTransactionStopped, blocking
 // until handler returns.
-func (a *Agent) Stop(id [TransactionIDSize]byte) error {
-	return a.StopWithError(id, ErrTransactionStopped)
-}
+func (a *Agent) Stop(id [TransactionIDSize]byte) error { _ = "STUB: not implemented"; return nil }
 
 // ErrAgentClosed indicates that agent is in closed state and is unable
 // to handle transactions.
@@ -114,20 +88,7 @@ var ErrAgentClosed = errors.New("agent is closed")
 //
 // Agent handler is guaranteed to be eventually called.
 func (a *Agent) Start(id [TransactionIDSize]byte, deadline time.Time) error {
-	a.mux.Lock()
-	defer a.mux.Unlock()
-	if a.closed {
-		return ErrAgentClosed
-	}
-	_, exists := a.transactions[id]
-	if exists {
-		return ErrTransactionExists
-	}
-	a.transactions[id] = agentTransaction{
-		id:       id,
-		deadline: deadline,
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -143,103 +104,33 @@ var ErrTransactionTimeOut = errors.New("transaction is timed out")
 // Will return ErrAgentClosed if agent is already closed.
 //
 // It is safe to call Collect concurrently but makes no sense.
-func (a *Agent) Collect(gcTime time.Time) error {
-	toRemove := make([]transactionID, 0, agentCollectCap)
-	a.mux.Lock()
-	if a.closed {
-		// Doing nothing if agent is closed.
-		// All transactions should be already closed
-		// during Close() call.
-		a.mux.Unlock()
+func (a *Agent) Collect(gcTime time.Time) error { _ = "STUB: not implemented"; return nil }
 
-		return ErrAgentClosed
-	}
-	// Adding all transactions with deadline before gcTime
-	// to toCall and toRemove slices.
-	// No allocs if there are less than agentCollectCap
-	// timed out transactions.
-	for id, t := range a.transactions {
-		if t.deadline.Before(gcTime) {
-			toRemove = append(toRemove, id)
-		}
-	}
-	// Un-registering timed out transactions.
-	for _, id := range toRemove {
-		delete(a.transactions, id)
-	}
-	// Calling handler does not require locked mutex,
-	// reducing lock time.
-	h := a.handler
-	a.mux.Unlock()
-	// Sending ErrTransactionTimeOut to handler for all transactions,
-	// blocking until last one.
-	event := Event{
-		Error: ErrTransactionTimeOut,
-	}
-	for _, id := range toRemove {
-		event.TransactionID = id
-		h(event)
-	}
+// Doing nothing if agent is closed.
+// All transactions should be already closed
+// during Close() call.
 
-	return nil
-}
+// Adding all transactions with deadline before gcTime
+// to toCall and toRemove slices.
+// No allocs if there are less than agentCollectCap
+// timed out transactions.
+
+// Un-registering timed out transactions.
+
+// Calling handler does not require locked mutex,
+// reducing lock time.
+
+// Sending ErrTransactionTimeOut to handler for all transactions,
+// blocking until last one.
 
 // Process incoming message, synchronously passing it to handler.
-func (a *Agent) Process(m *Message) error {
-	event := Event{
-		TransactionID: m.TransactionID,
-		Message:       m,
-	}
-	a.mux.Lock()
-	if a.closed {
-		a.mux.Unlock()
-
-		return ErrAgentClosed
-	}
-	h := a.handler
-	delete(a.transactions, m.TransactionID)
-	a.mux.Unlock()
-	h(event)
-
-	return nil
-}
+func (a *Agent) Process(m *Message) error { _ = "STUB: not implemented"; return nil }
 
 // SetHandler sets agent handler to h.
-func (a *Agent) SetHandler(h Handler) error {
-	a.mux.Lock()
-	if a.closed {
-		a.mux.Unlock()
-
-		return ErrAgentClosed
-	}
-	a.handler = h
-	a.mux.Unlock()
-
-	return nil
-}
+func (a *Agent) SetHandler(h Handler) error { _ = "STUB: not implemented"; return nil }
 
 // Close terminates all transactions with ErrAgentClosed and renders Agent to
 // closed state.
-func (a *Agent) Close() error {
-	e := Event{
-		Error: ErrAgentClosed,
-	}
-	a.mux.Lock()
-	if a.closed {
-		a.mux.Unlock()
-
-		return ErrAgentClosed
-	}
-	for _, t := range a.transactions {
-		e.TransactionID = t.id
-		a.handler(e)
-	}
-	a.transactions = nil
-	a.closed = true
-	a.handler = nil
-	a.mux.Unlock()
-
-	return nil
-}
+func (a *Agent) Close() error { _ = "STUB: not implemented"; return nil }
 
 type transactionID [TransactionIDSize]byte

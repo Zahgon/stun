@@ -4,10 +4,7 @@
 package stun
 
 import (
-	"fmt"
-	"io"
 	"net"
-	"strconv"
 )
 
 // MappedAddress represents MAPPED-ADDRESS attribute.
@@ -46,123 +43,49 @@ type OtherAddress struct {
 }
 
 // AddTo adds ALTERNATE-SERVER attribute to message.
-func (s *AlternateServer) AddTo(m *Message) error {
-	a := (*MappedAddress)(s)
-
-	return a.AddToAs(m, AttrAlternateServer)
-}
+func (s *AlternateServer) AddTo(m *Message) error { _ = "STUB: not implemented"; return nil }
 
 // GetFrom decodes ALTERNATE-SERVER from message.
-func (s *AlternateServer) GetFrom(m *Message) error {
-	a := (*MappedAddress)(s)
+func (s *AlternateServer) GetFrom(m *Message) error { _ = "STUB: not implemented"; return nil }
 
-	return a.GetFromAs(m, AttrAlternateServer)
-}
-
-func (a MappedAddress) String() string {
-	return net.JoinHostPort(a.IP.String(), strconv.Itoa(a.Port))
-}
+func (a MappedAddress) String() string { _ = "STUB: not implemented"; return "" }
 
 // GetFromAs decodes MAPPED-ADDRESS value in message m as an attribute of type t.
 func (a *MappedAddress) GetFromAs(m *Message, t AttrType) error {
-	value, err := m.Get(t)
-	if err != nil {
-		return err
-	}
-	if len(value) <= 4 {
-		return io.ErrUnexpectedEOF
-	}
-	family := bin.Uint16(value[0:2])
-	if family != familyIPv6 && family != familyIPv4 {
-		return newDecodeErr("xor-mapped address", "family",
-			fmt.Sprintf("bad value %d", family),
-		)
-	}
-	ipLen := net.IPv4len
-	if family == familyIPv6 {
-		ipLen = net.IPv6len
-	}
-	// Ensuring len(a.IP) == ipLen and reusing a.IP.
-	if len(a.IP) < ipLen {
-		a.IP = make(net.IP, ipLen)
-	} else {
-		a.IP = a.IP[:ipLen]
-		for i := range a.IP {
-			a.IP[i] = 0
-		}
-	}
-	a.Port = int(bin.Uint16(value[2:4]))
-	copy(a.IP, value[4:])
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Ensuring len(a.IP) == ipLen and reusing a.IP.
 
 // AddToAs adds MAPPED-ADDRESS value to m as t attribute.
 func (a *MappedAddress) AddToAs(msg *Message, attrType AttrType) error {
-	var (
-		family = familyIPv4
-		ip     = a.IP
-	)
-	if len(a.IP) == net.IPv6len {
-		if isIPv4(ip) {
-			ip = ip[12:16] // like in ip.To4()
-		} else {
-			family = familyIPv6
-		}
-	} else if len(ip) != net.IPv4len {
-		return ErrBadIPLength
-	}
-	value := make([]byte, 128)
-	bin.PutUint16(value[0:2], family)
-	bin.PutUint16(value[2:4], uint16(a.Port)) //nolint:gosec //G115
-	copy(value[4:], ip)
-	msg.Add(attrType, value[:4+len(ip)])
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// like in ip.To4()
+
+//nolint:gosec //G115
+
 // AddTo adds MAPPED-ADDRESS to message.
-func (a *MappedAddress) AddTo(m *Message) error {
-	return a.AddToAs(m, AttrMappedAddress)
-}
+func (a *MappedAddress) AddTo(m *Message) error { _ = "STUB: not implemented"; return nil }
 
 // GetFrom decodes MAPPED-ADDRESS from message.
-func (a *MappedAddress) GetFrom(m *Message) error {
-	return a.GetFromAs(m, AttrMappedAddress)
-}
+func (a *MappedAddress) GetFrom(m *Message) error { _ = "STUB: not implemented"; return nil }
 
 // AddTo adds OTHER-ADDRESS attribute to message.
-func (o *OtherAddress) AddTo(m *Message) error {
-	a := (*MappedAddress)(o)
-
-	return a.AddToAs(m, AttrOtherAddress)
-}
+func (o *OtherAddress) AddTo(m *Message) error { _ = "STUB: not implemented"; return nil }
 
 // GetFrom decodes OTHER-ADDRESS from message.
-func (o *OtherAddress) GetFrom(m *Message) error {
-	a := (*MappedAddress)(o)
+func (o *OtherAddress) GetFrom(m *Message) error { _ = "STUB: not implemented"; return nil }
 
-	return a.GetFromAs(m, AttrOtherAddress)
-}
-
-func (o OtherAddress) String() string {
-	return net.JoinHostPort(o.IP.String(), strconv.Itoa(o.Port))
-}
+func (o OtherAddress) String() string { _ = "STUB: not implemented"; return "" }
 
 // AddTo adds RESPONSE-ORIGIN attribute to message.
-func (o *ResponseOrigin) AddTo(m *Message) error {
-	a := (*MappedAddress)(o)
-
-	return a.AddToAs(m, AttrResponseOrigin)
-}
+func (o *ResponseOrigin) AddTo(m *Message) error { _ = "STUB: not implemented"; return nil }
 
 // GetFrom decodes RESPONSE-ORIGIN from message.
-func (o *ResponseOrigin) GetFrom(m *Message) error {
-	a := (*MappedAddress)(o)
+func (o *ResponseOrigin) GetFrom(m *Message) error { _ = "STUB: not implemented"; return nil }
 
-	return a.GetFromAs(m, AttrResponseOrigin)
-}
-
-func (o ResponseOrigin) String() string {
-	return net.JoinHostPort(o.IP.String(), strconv.Itoa(o.Port))
-}
+func (o ResponseOrigin) String() string { _ = "STUB: not implemented"; return "" }

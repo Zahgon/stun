@@ -5,9 +5,6 @@ package stun
 
 import (
 	"errors"
-	"net"
-	"net/url"
-	"strconv"
 )
 
 var (
@@ -55,35 +52,9 @@ const (
 
 // NewSchemeType defines a procedure for creating a new SchemeType from a raw
 // string naming the scheme type.
-func NewSchemeType(raw string) SchemeType {
-	switch raw {
-	case "stun":
-		return SchemeTypeSTUN
-	case "stuns":
-		return SchemeTypeSTUNS
-	case "turn":
-		return SchemeTypeTURN
-	case "turns":
-		return SchemeTypeTURNS
-	default:
-		return SchemeTypeUnknown
-	}
-}
+func NewSchemeType(raw string) SchemeType { _ = "STUB: not implemented"; return *new(SchemeType) }
 
-func (t SchemeType) String() string {
-	switch t {
-	case SchemeTypeSTUN:
-		return "stun"
-	case SchemeTypeSTUNS:
-		return "stuns"
-	case SchemeTypeTURN:
-		return "turn"
-	case SchemeTypeTURNS:
-		return "turns"
-	default:
-		return ErrUnknownType.Error()
-	}
-}
+func (t SchemeType) String() string { _ = "STUB: not implemented"; return "" }
 
 // ProtoType indicates the transport protocol type that is used in the ice.URL
 // structure.
@@ -103,26 +74,18 @@ const (
 // NewProtoType defines a procedure for creating a new ProtoType from a raw
 // string naming the transport protocol type.
 func NewProtoType(raw string) ProtoType {
-	switch raw {
-	case "udp": //nolint:goconst
-		return ProtoTypeUDP
-	case "tcp": //nolint:goconst
-		return ProtoTypeTCP
-	default:
-		return ProtoTypeUnknown
-	}
+	_ = "STUB: not implemented"
+	return *
+
+	//nolint:goconst
+	new(ProtoType)
 }
 
-func (t ProtoType) String() string {
-	switch t {
-	case ProtoTypeUDP:
-		return "udp" //nolint:goconst
-	case ProtoTypeTCP:
-		return "tcp"
-	default:
-		return ErrUnknownType.Error()
-	}
-}
+//nolint:goconst
+
+func (t ProtoType) String() string { _ = "STUB: not implemented"; return "" }
+
+//nolint:goconst
 
 // URI represents a STUN (rfc7064) or TURN (rfc7065) URI.
 type URI struct {
@@ -137,128 +100,19 @@ type URI struct {
 // ParseURI parses a STUN or TURN urls following the ABNF syntax described in
 // https://tools.ietf.org/html/rfc7064 and https://tools.ietf.org/html/rfc7065
 // respectively.
-func ParseURI(raw string) (*URI, error) { //nolint:gocognit,cyclop
-	rawParts, err := url.Parse(raw)
-	if err != nil {
-		return nil, err
-	}
-
-	var uri URI
-	uri.Scheme = NewSchemeType(rawParts.Scheme)
-	if uri.Scheme == SchemeTypeUnknown {
-		return nil, ErrSchemeType
-	}
-
-	var rawPort string
-	if uri.Host, rawPort, err = net.SplitHostPort(rawParts.Opaque); err != nil { //nolint:nestif
-		var e *net.AddrError
-		if errors.As(err, &e) {
-			if e.Err == "missing port in address" {
-				nextRawURL := uri.Scheme.String() + ":" + rawParts.Opaque
-				switch uri.Scheme {
-				case SchemeTypeSTUN, SchemeTypeTURN:
-					nextRawURL += ":3478"
-					if rawParts.RawQuery != "" {
-						nextRawURL += "?" + rawParts.RawQuery
-					}
-
-					return ParseURI(nextRawURL)
-				case SchemeTypeSTUNS, SchemeTypeTURNS:
-					nextRawURL += ":5349"
-					if rawParts.RawQuery != "" {
-						nextRawURL += "?" + rawParts.RawQuery
-					}
-
-					return ParseURI(nextRawURL)
-				default:
-					return nil, ErrSchemeType
-				}
-			}
-		}
-
-		return nil, err
-	}
-
-	if uri.Host == "" {
-		return nil, ErrHost
-	}
-
-	if uri.Port, err = strconv.Atoi(rawPort); err != nil {
-		return nil, ErrPort
-	}
-
-	switch uri.Scheme {
-	case SchemeTypeSTUN:
-		qArgs, err := url.ParseQuery(rawParts.RawQuery)
-		if err != nil || len(qArgs) > 0 {
-			return nil, ErrSTUNQuery
-		}
-		uri.Proto = ProtoTypeUDP
-	case SchemeTypeSTUNS:
-		qArgs, err := url.ParseQuery(rawParts.RawQuery)
-		if err != nil || len(qArgs) > 0 {
-			return nil, ErrSTUNQuery
-		}
-		uri.Proto = ProtoTypeTCP
-	case SchemeTypeTURN:
-		proto, err := parseProto(rawParts.RawQuery)
-		if err != nil {
-			return nil, err
-		}
-
-		uri.Proto = proto
-		if uri.Proto == ProtoTypeUnknown {
-			uri.Proto = ProtoTypeUDP
-		}
-	case SchemeTypeTURNS:
-		proto, err := parseProto(rawParts.RawQuery)
-		if err != nil {
-			return nil, err
-		}
-
-		uri.Proto = proto
-		if uri.Proto == ProtoTypeUnknown {
-			uri.Proto = ProtoTypeTCP
-		}
-
-	case SchemeTypeUnknown:
-	}
-
-	return &uri, nil
+func ParseURI(raw string) (*URI, error) {
+	_ = "STUB: not implemented" //nolint:gocognit,cyclop
+	return nil, nil
 }
+
+//nolint:nestif
 
 func parseProto(raw string) (ProtoType, error) {
-	qArgs, err := url.ParseQuery(raw)
-	if err != nil || len(qArgs) > 1 {
-		return ProtoTypeUnknown, ErrInvalidQuery
-	}
-
-	var proto ProtoType
-	if rawProto := qArgs.Get("transport"); rawProto != "" {
-		if proto = NewProtoType(rawProto); proto == ProtoTypeUnknown {
-			return ProtoTypeUnknown, ErrProtoType
-		}
-
-		return proto, nil
-	}
-
-	if len(qArgs) > 0 {
-		return ProtoTypeUnknown, ErrInvalidQuery
-	}
-
-	return proto, nil
+	_ = "STUB: not implemented"
+	return *new(ProtoType), nil
 }
 
-func (u URI) String() string {
-	rawURL := u.Scheme.String() + ":" + net.JoinHostPort(u.Host, strconv.Itoa(u.Port))
-	if u.Scheme == SchemeTypeTURN || u.Scheme == SchemeTypeTURNS {
-		rawURL += "?transport=" + u.Proto.String()
-	}
-
-	return rawURL
-}
+func (u URI) String() string { _ = "STUB: not implemented"; return "" }
 
 // IsSecure returns whether the this URL's scheme describes secure scheme or not.
-func (u URI) IsSecure() bool {
-	return u.Scheme == SchemeTypeSTUNS || u.Scheme == SchemeTypeTURNS
-}
+func (u URI) IsSecure() bool { _ = "STUB: not implemented"; return false }

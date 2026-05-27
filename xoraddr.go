@@ -5,12 +5,7 @@ package stun
 
 import (
 	"errors"
-	"fmt"
-	"io"
 	"net"
-	"strconv"
-
-	"github.com/pion/transport/v4/utils/xor"
 )
 
 const (
@@ -26,105 +21,45 @@ type XORMappedAddress struct {
 	Port int
 }
 
-func (a XORMappedAddress) String() string {
-	return net.JoinHostPort(a.IP.String(), strconv.Itoa(a.Port))
-}
+func (a XORMappedAddress) String() string { _ = "STUB: not implemented"; return "" }
 
 // isIPv4 returns true if ip with len of net.IPv6Len seems to be ipv4.
 func isIPv4(ip net.IP) bool {
+	_ = "STUB: not implemented"
 	// Optimized for performance. Copied from net.IP.To4.
-	return isZeros(ip[0:10]) && ip[10] == 0xff && ip[11] == 0xff
+	return false
 }
 
 // Is p all zeros?
-func isZeros(p net.IP) bool {
-	for i := range p {
-		if p[i] != 0 {
-			return false
-		}
-	}
-
-	return true
-}
+func isZeros(p net.IP) bool { _ = "STUB: not implemented"; return false }
 
 // ErrBadIPLength means that len(IP) is not net.{IPv6len,IPv4len}.
 var ErrBadIPLength = errors.New("invalid length of IP value")
 
 // AddToAs adds XOR-MAPPED-ADDRESS value to msg as attr attribute.
 func (a XORMappedAddress) AddToAs(msg *Message, attr AttrType) error {
-	var (
-		family = familyIPv4
-		ip     = a.IP
-	)
-	if len(a.IP) == net.IPv6len {
-		if isIPv4(ip) {
-			ip = ip[12:16] // like in ip.To4()
-		} else {
-			family = familyIPv6
-		}
-	} else if len(ip) != net.IPv4len {
-		return ErrBadIPLength
-	}
-	value := make([]byte, 32+128)
-	value[0] = 0 // first 8 bits are zeroes
-	xorValue := make([]byte, net.IPv6len)
-	copy(xorValue[4:], msg.TransactionID[:])
-	bin.PutUint32(xorValue[0:4], magicCookie)
-	bin.PutUint16(value[0:2], family)
-	bin.PutUint16(value[2:4], uint16(a.Port^magicCookie>>16)) //nolint:gosec // G115, false positive, port
-	xor.XorBytes(value[4:4+len(ip)], ip, xorValue)
-	msg.Add(attr, value[:4+len(ip)])
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// like in ip.To4()
+
+// first 8 bits are zeroes
+
+//nolint:gosec // G115, false positive, port
+
 // AddTo adds XOR-MAPPED-ADDRESS to m. Can return ErrBadIPLength
 // if len(a.IP) is invalid.
-func (a XORMappedAddress) AddTo(m *Message) error {
-	return a.AddToAs(m, AttrXORMappedAddress)
-}
+func (a XORMappedAddress) AddTo(m *Message) error { _ = "STUB: not implemented"; return nil }
 
 // GetFromAs decodes XOR-MAPPED-ADDRESS attribute value in message
 // getting it as for attr type.
 func (a *XORMappedAddress) GetFromAs(msg *Message, attr AttrType) error {
-	value, err := msg.Get(attr)
-	if err != nil {
-		return err
-	}
-	family := bin.Uint16(value[0:2])
-	if family != familyIPv6 && family != familyIPv4 {
-		return newDecodeErr("xor-mapped address", "family",
-			fmt.Sprintf("bad value %d", family),
-		)
-	}
-	ipLen := net.IPv4len
-	if family == familyIPv6 {
-		ipLen = net.IPv6len
-	}
-	// Ensuring len(a.IP) == ipLen and reusing a.IP.
-	if len(a.IP) < ipLen {
-		a.IP = make(net.IP, ipLen)
-	} else {
-		a.IP = a.IP[:ipLen]
-		for i := range a.IP {
-			a.IP[i] = 0
-		}
-	}
-
-	if len(value) <= 4 {
-		return io.ErrUnexpectedEOF
-	}
-	if err := CheckOverflow(attr, len(value[4:]), len(a.IP)); err != nil {
-		return err
-	}
-	a.Port = int(bin.Uint16(value[2:4])) ^ (magicCookie >> 16)
-	xorValue := make([]byte, 4+TransactionIDSize)
-	bin.PutUint32(xorValue[0:4], magicCookie)
-	copy(xorValue[4:], msg.TransactionID[:])
-	xor.XorBytes(a.IP, value[4:], xorValue)
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Ensuring len(a.IP) == ipLen and reusing a.IP.
 
 // GetFrom decodes XOR-MAPPED-ADDRESS attribute in message and returns
 // error if any. While decoding, a.IP is reused if possible and can be
@@ -147,6 +82,4 @@ func (a *XORMappedAddress) GetFromAs(msg *Message, attr AttrType) error {
 //	addr.IP.String()    // 213.141.156.236, net.IPv4Len
 //	expectedIP.String() // d58d:9cec::ffff:d58d:9cec, 16 bytes, first 4 are IPv4
 //	// now we have len(expectedIP) = 16 and len(addr.IP) = 4.
-func (a *XORMappedAddress) GetFrom(m *Message) error {
-	return a.GetFromAs(m, AttrXORMappedAddress)
-}
+func (a *XORMappedAddress) GetFrom(m *Message) error { _ = "STUB: not implemented"; return nil }

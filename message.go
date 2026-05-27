@@ -4,12 +4,8 @@
 package stun
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"errors"
-	"fmt"
 	"io"
-	"strings"
 
 	"github.com/pion/logging"
 )
@@ -33,53 +29,27 @@ const (
 
 // NewTransactionID returns new random transaction ID using crypto/rand
 // as source.
-func NewTransactionID() (b [TransactionIDSize]byte) {
-	readFullOrPanic(rand.Reader, b[:])
-
-	return b
-}
+func NewTransactionID() (b [TransactionIDSize]byte) { _ = "STUB: not implemented"; return nil }
 
 // IsMessage returns true if b looks like STUN message.
 // Useful for multiplexing. IsMessage does not guarantee
 // that decoding will be successful.
-func IsMessage(b []byte) bool {
-	return len(b) >= messageHeaderSize && bin.Uint32(b[4:8]) == magicCookie
-}
+func IsMessage(b []byte) bool { _ = "STUB: not implemented"; return false }
 
 // MessageOption is a function that sets a Message option.
 type MessageOption func(*Message)
 
 // New returns *Message with pre-allocated Raw.
-func New() *Message {
-	const defaultRawCapacity = 120
-
-	return &Message{
-		Raw: make([]byte, messageHeaderSize, defaultRawCapacity),
-	}
-}
+func New() *Message { _ = "STUB: not implemented"; return nil }
 
 // NewWithOptions returns *Message with pre-allocated Raw, applying the provided options.
-func NewWithOptions(options ...MessageOption) *Message {
-	m := New()
-	for _, option := range options {
-		option(m)
-	}
-
-	return m
-}
+func NewWithOptions(options ...MessageOption) *Message { _ = "STUB: not implemented"; return nil }
 
 // ErrDecodeToNil occurs on Decode(data, nil) call.
 var ErrDecodeToNil = errors.New("attempt to decode to nil message")
 
 // Decode decodes Message from data to m, returning error if any.
-func Decode(data []byte, m *Message) error {
-	if m == nil {
-		return ErrDecodeToNil
-	}
-	m.Raw = append(m.Raw[:0], data...)
-
-	return m.Decode()
-}
+func Decode(data []byte, m *Message) error { _ = "STUB: not implemented"; return nil }
 
 // Message represents a single STUN packet. It uses aggressive internal
 // buffering to enable zero-allocation encoding and decoding,
@@ -99,102 +69,62 @@ type Message struct {
 
 // withMessageLogger sets the logger for the Message.
 func withMessageLogger(logger logging.LeveledLogger) MessageOption {
-	return func(m *Message) {
-		m.logger = logger
-	}
+	_ = "STUB: not implemented"
+	return *new(MessageOption)
 }
 
 // WithStrict enables stricter RFC 5389 and RFC 8489 enforcement.
-func WithStrict(strict bool) MessageOption {
-	return func(m *Message) {
-		m.strict = strict
-	}
-}
+func WithStrict(strict bool) MessageOption { _ = "STUB: not implemented"; return *new(MessageOption) }
 
 // MarshalBinary implements the encoding.BinaryMarshaler interface.
 func (m Message) MarshalBinary() (data []byte, err error) {
+	_ = "STUB: not implemented"
 	// We can't return m.Raw, allocation is expected by implicit interface
 	// contract induced by other implementations.
-	b := make([]byte, len(m.Raw))
-	copy(b, m.Raw)
-
-	return b, nil
+	return nil, nil
 }
 
 // UnmarshalBinary implements the encoding.BinaryUnmarshaler interface.
 func (m *Message) UnmarshalBinary(data []byte) error {
+	_ = "STUB: not implemented"
 	// We can't retain data, copy is expected by interface contract.
-	m.Raw = append(m.Raw[:0], data...)
-
-	return m.Decode()
+	return nil
 }
 
 // GobEncode implements the gob.GobEncoder interface.
 func (m Message) GobEncode() ([]byte, error) {
-	return m.MarshalBinary()
+	_ = "STUB: not implemented"
+	return nil,
+
+		// GobDecode implements the gob.GobDecoder interface.
+		nil
 }
 
-// GobDecode implements the gob.GobDecoder interface.
-func (m *Message) GobDecode(data []byte) error {
-	return m.UnmarshalBinary(data)
-}
+func (m *Message) GobDecode(data []byte) error { _ = "STUB: not implemented"; return nil }
 
 // AddTo sets b.TransactionID to m.TransactionID.
 //
 // Implements Setter to aid in crafting responses.
-func (m *Message) AddTo(b *Message) error {
-	b.TransactionID = m.TransactionID
-	b.WriteTransactionID()
-
-	return nil
-}
+func (m *Message) AddTo(b *Message) error { _ = "STUB: not implemented"; return nil }
 
 // NewTransactionID sets m.TransactionID to random value from crypto/rand
 // and returns error if any.
-func (m *Message) NewTransactionID() error {
-	_, err := io.ReadFull(rand.Reader, m.TransactionID[:])
-	if err == nil {
-		m.WriteTransactionID()
-	}
+func (m *Message) NewTransactionID() error { _ = "STUB: not implemented"; return nil }
 
-	return err
-}
-
-func (m *Message) String() string {
-	tID := base64.StdEncoding.EncodeToString(m.TransactionID[:])
-	var aInfo strings.Builder
-	for k, a := range m.Attributes {
-		fmt.Fprintf(&aInfo, "attr%d=%s ", k, a.Type)
-	}
-
-	return fmt.Sprintf("%s l=%d attrs=%d id=%s, %s", m.Type, m.Length, len(m.Attributes), tID, aInfo.String())
-}
+func (m *Message) String() string { _ = "STUB: not implemented"; return "" }
 
 // Reset resets Message, attributes and underlying buffer length.
-func (m *Message) Reset() {
-	m.Raw = m.Raw[:0]
-	m.Length = 0
-	m.Attributes = m.Attributes[:0]
-}
+func (m *Message) Reset() { _ = "STUB: not implemented"; return }
 
 // grow ensures that internal buffer has n length.
-func (m *Message) grow(n int) {
-	if len(m.Raw) >= n {
-		return
-	}
-	if cap(m.Raw) >= n {
-		m.Raw = m.Raw[:n]
-
-		return
-	}
-	m.Raw = append(m.Raw, make([]byte, n-len(m.Raw))...)
-}
+func (m *Message) grow(n int) { _ = "STUB: not implemented"; return }
 
 // Add appends new attribute to message. Not goroutine-safe.
 //
 // Value of attribute is copied to internal buffer so
 // it is safe to reuse v.
 func (m *Message) Add(attrType AttrType, val []byte) {
+	_ = "STUB: not implemented"
 	// Allocating buffer for TLV (type-length-value).
 	// T = t, L = len(v), V = v.
 	// m.Raw will look like:
@@ -203,202 +133,95 @@ func (m *Message) Add(attrType AttrType, val []byte) {
 	// [20+m.Length:20+m.Length+len(v) + 4] <- allocated buffer for new TLV
 	// [first:last]                         <- same as previous
 	// [0 1|2 3|4    4 + len(v)]            <- mapping for allocated buffer
-	//   T   L        V
-	allocSize := attributeHeaderSize + len(val) // ~ len(TLV) = len(TL) + len(V)
-	first := messageHeaderSize + int(m.Length)  // first byte number
-	last := first + allocSize                   // last byte number
-	m.grow(last)                                // growing cap(Raw) to fit TLV
-	m.Raw = m.Raw[:last]                        // now len(Raw) = last
-	//nolint:gosec // G115
-	m.Length += uint32(allocSize) // rendering length change
-
-	// Sub-slicing internal buffer to simplify encoding.
-	buf := m.Raw[first:last]           // slice for TLV
-	value := buf[attributeHeaderSize:] // slice for V
-	attr := RawAttribute{
-		Type: attrType, // T
-		//nolint:gosec // G115
-		Length: uint16(len(val)), // L
-		Value:  value,            // V
-	}
-
-	// Encoding attribute TLV to allocated buffer.
-	bin.PutUint16(buf[0:2], attr.Type.Value()) // T
-	bin.PutUint16(buf[2:4], attr.Length)       // L
-	copy(value, val)                           // V
-
-	// Checking that attribute value needs padding.
-	if attr.Length%padding != 0 {
-		// Performing padding.
-		bytesToAdd := nearestPaddedValueLength(len(val)) - len(val)
-		last += bytesToAdd
-		m.grow(last)
-		// setting all padding bytes to zero
-		// to prevent data leak from previous
-		// data in next bytesToAdd bytes
-		buf = m.Raw[last-bytesToAdd : last]
-		for i := range buf {
-			buf[i] = 0
-		}
-		m.Raw = m.Raw[:last] // increasing buffer length
-		//nolint:gosec // G115
-		m.Length += uint32(bytesToAdd) // rendering length change
-	}
-	m.Attributes = append(m.Attributes, attr)
-	m.WriteLength()
+	//
+	//	T   L        V
+	return
 }
 
-func attrSliceEqual(a, b Attributes) bool {
-	for _, attr := range a {
-		found := false
-		for _, attrB := range b {
-			if attrB.Type != attr.Type {
-				continue
-			}
-			if attrB.Equal(attr) {
-				found = true
+// ~ len(TLV) = len(TL) + len(V)
+// first byte number
+// last byte number
+// growing cap(Raw) to fit TLV
+// now len(Raw) = last
+//nolint:gosec // G115
+// rendering length change
 
-				break
-			}
-		}
-		if !found {
-			return false
-		}
-	}
+// Sub-slicing internal buffer to simplify encoding.
+// slice for TLV
+// slice for V
 
-	return true
-}
+// T
+//nolint:gosec // G115
+// L
+// V
 
-func attrEqual(attrA, attrB Attributes) bool {
-	if attrA == nil && attrB == nil {
-		return true
-	}
-	if attrA == nil || attrB == nil {
-		return false
-	}
-	if len(attrA) != len(attrB) {
-		return false
-	}
-	if !attrSliceEqual(attrA, attrB) {
-		return false
-	}
-	if !attrSliceEqual(attrB, attrA) {
-		return false
-	}
+// Encoding attribute TLV to allocated buffer.
+// T
+// L
+// V
 
-	return true
-}
+// Checking that attribute value needs padding.
+
+// Performing padding.
+
+// setting all padding bytes to zero
+// to prevent data leak from previous
+// data in next bytesToAdd bytes
+
+// increasing buffer length
+//nolint:gosec // G115
+// rendering length change
+
+func attrSliceEqual(a, b Attributes) bool { _ = "STUB: not implemented"; return false }
+
+func attrEqual(attrA, attrB Attributes) bool { _ = "STUB: not implemented"; return false }
 
 // Equal returns true if Message msg equals to m.
 // Ignores m.Raw.
-func (m *Message) Equal(msg *Message) bool {
-	if m == nil && msg == nil {
-		return true
-	}
-	if m == nil || msg == nil {
-		return false
-	}
-	if m.Type != msg.Type {
-		return false
-	}
-	if m.TransactionID != msg.TransactionID {
-		return false
-	}
-	if m.Length != msg.Length {
-		return false
-	}
-	if !attrEqual(m.Attributes, msg.Attributes) {
-		return false
-	}
-
-	return true
-}
+func (m *Message) Equal(msg *Message) bool { _ = "STUB: not implemented"; return false }
 
 // WriteLength writes m.Length to m.Raw.
-func (m *Message) WriteLength() {
-	m.grow(4)
-	bin.PutUint16(m.Raw[2:4], uint16(m.Length)) //nolint:gosec // G115
-}
+func (m *Message) WriteLength() { _ = "STUB: not implemented"; return }
+
+//nolint:gosec // G115
 
 // WriteHeader writes header to underlying buffer. Not goroutine-safe.
-func (m *Message) WriteHeader() {
-	m.grow(messageHeaderSize)
-	_ = m.Raw[:messageHeaderSize] // early bounds check to guarantee safety of writes below
+func (m *Message) WriteHeader() { _ = "STUB: not implemented"; return }
 
-	m.WriteType()
-	m.WriteLength()
-	bin.PutUint32(m.Raw[4:8], magicCookie)               // magic cookie
-	copy(m.Raw[8:messageHeaderSize], m.TransactionID[:]) // transaction ID
-}
+// early bounds check to guarantee safety of writes below
+
+// magic cookie
+// transaction ID
 
 // WriteTransactionID writes m.TransactionID to m.Raw.
-func (m *Message) WriteTransactionID() {
-	copy(m.Raw[8:messageHeaderSize], m.TransactionID[:]) // transaction ID
-}
+func (m *Message) WriteTransactionID() { _ = "STUB: not implemented"; return }
+
+// transaction ID
 
 // WriteAttributes encodes all m.Attributes to m.
-func (m *Message) WriteAttributes() {
-	attributes := m.Attributes
-	m.Attributes = attributes[:0]
-	for _, a := range attributes {
-		m.Add(a.Type, a.Value)
-	}
-	m.Attributes = attributes
-}
+func (m *Message) WriteAttributes() { _ = "STUB: not implemented"; return }
 
 // WriteType writes m.Type to m.Raw.
-func (m *Message) WriteType() {
-	m.grow(2)
-	bin.PutUint16(m.Raw[0:2], m.Type.Value()) // message type
-}
+func (m *Message) WriteType() { _ = "STUB: not implemented"; return }
+
+// message type
 
 // SetType sets m.Type and writes it to m.Raw.
-func (m *Message) SetType(t MessageType) {
-	m.Type = t
-	m.WriteType()
-}
+func (m *Message) SetType(t MessageType) { _ = "STUB: not implemented"; return }
 
 // Encode re-encodes message into m.Raw.
-func (m *Message) Encode() {
-	m.Raw = m.Raw[:0]
-	m.WriteHeader()
-	m.Length = 0
-	m.WriteAttributes()
-}
+func (m *Message) Encode() { _ = "STUB: not implemented"; return }
 
 // WriteTo implements WriterTo via calling Write(m.Raw) on w and returning
 // call result.
-func (m *Message) WriteTo(w io.Writer) (int64, error) {
-	n, err := w.Write(m.Raw)
-
-	return int64(n), err
-}
+func (m *Message) WriteTo(w io.Writer) (int64, error) { _ = "STUB: not implemented"; return 0, nil }
 
 // ReadFrom implements ReaderFrom. Reads message from r into m.Raw,
 // Decodes it and return error if any. If m.Raw is too small, will return
 // ErrUnexpectedEOF, ErrUnexpectedHeaderEOF or *DecodeErr.
 //
 // Can return *DecodeErr while decoding too.
-func (m *Message) ReadFrom(r io.Reader) (int64, error) {
-	tBuf := m.Raw[:cap(m.Raw)]
-	var (
-		n   int
-		err error
-	)
-	if n, err = r.Read(tBuf); err != nil {
-		return int64(n), err
-	}
-	m.Raw = tBuf[:n]
-
-	if err = m.Decode(); err != nil {
-		return int64(n), err
-	}
-	if m.strict && m.Type.Value() == 0 {
-		return int64(n), ErrInvalidType
-	}
-
-	return int64(n), nil
-}
+func (m *Message) ReadFrom(r io.Reader) (int64, error) { _ = "STUB: not implemented"; return 0, nil }
 
 // ErrUnexpectedHeaderEOF means that there were not enough bytes in
 // m.Raw to read header.
@@ -408,115 +231,46 @@ var ErrUnexpectedHeaderEOF = errors.New("unexpected EOF: not enough bytes to rea
 var ErrInvalidType = errors.New("STUN message type 0 is reserved")
 
 // Decode decodes m.Raw into m.
-func (m *Message) Decode() error { //nolint:cyclop
+func (m *Message) Decode() error {
+	_ = "STUB: not implemented" //nolint:cyclop
 	// decoding message header
-	buf := m.Raw
-	if len(buf) < messageHeaderSize {
-		return ErrUnexpectedHeaderEOF
-	}
-	var (
-		msgType  = bin.Uint16(buf[0:2])      // first 2 bytes
-		size     = int(bin.Uint16(buf[2:4])) // second 2 bytes
-		cookie   = bin.Uint32(buf[4:8])      // last 4 bytes
-		fullSize = messageHeaderSize + size  // len(m.Raw)
-	)
-	if cookie != magicCookie {
-		msg := fmt.Sprintf("%x is invalid magic cookie (should be %x)", cookie, magicCookie)
-
-		return newDecodeErr("message", "cookie", msg)
-	}
-	if len(buf) < fullSize {
-		msg := fmt.Sprintf("buffer length %d is less than %d (expected message size)", len(buf), fullSize)
-
-		return newAttrDecodeErr("message", msg)
-	}
-	// saving header data
-	m.Type.ReadValue(msgType)
-	m.Length = uint32(size) //nolint:gosec // G115
-	copy(m.TransactionID[:], buf[8:messageHeaderSize])
-
-	m.Attributes = m.Attributes[:0]
-	var (
-		offset = 0
-		b      = buf[messageHeaderSize:fullSize]
-	)
-	seenMI := false
-	seenMI256 := false
-	for offset < size {
-		// checking that we have enough bytes to read header
-		if len(b) < attributeHeaderSize {
-			msg := fmt.Sprintf("buffer length %d is less than %d (expected header size)", len(b), attributeHeaderSize)
-
-			return newAttrDecodeErr("header", msg)
-		}
-		var (
-			attr = RawAttribute{
-				Type:   compatAttrType(bin.Uint16(b[0:2])), // first 2 bytes
-				Length: bin.Uint16(b[2:4]),                 // second 2 bytes
-			}
-			aL     = int(attr.Length)             // attribute length
-			aBuffL = nearestPaddedValueLength(aL) // expected buffer length (with padding)
-		)
-		b = b[attributeHeaderSize:] // slicing again to simplify value read
-		offset += attributeHeaderSize
-		if len(b) < aBuffL { // checking size
-			msg := fmt.Sprintf("buffer length %d is less than %d (expected value size for %s)", len(b), aBuffL, attr.Type)
-
-			return newAttrDecodeErr("value", msg)
-		}
-		attr.Value = b[:aL]
-		offset += aBuffL
-		b = b[aBuffL:]
-
-		// RFC 8489:
-		// - after MESSAGE-INTEGRITY, only MESSAGE-INTEGRITY-SHA256 and
-		//   FINGERPRINT may follow.
-		// - after MESSAGE-INTEGRITY-SHA256, if MESSAGE-INTEGRITY was absent,
-		//   only FINGERPRINT may follow.
-		isMI := attr.Type == AttrMessageIntegrity
-		isMI256 := attr.Type == AttrMessageIntegritySHA256
-		isFingerprint := attr.Type == AttrFingerprint
-		afterMI := seenMI && !isMI256 && !isFingerprint
-		afterMI256Only := !seenMI && seenMI256 && !isFingerprint
-		afterIntegrity := afterMI || afterMI256Only
-
-		if afterIntegrity && (m.logger != nil) {
-			action := "retained"
-			if m.strict {
-				action = "dropped"
-			}
-			m.logger.Warnf("attribute %s found after integrity attribute (%s)", attr.Type.String(), action)
-		}
-		if m.strict && afterIntegrity {
-			continue
-		}
-		m.Attributes = append(m.Attributes, attr)
-		if isMI {
-			seenMI = true
-		}
-		if isMI256 {
-			seenMI256 = true
-		}
-	}
-
 	return nil
 }
+
+// first 2 bytes
+// second 2 bytes
+// last 4 bytes
+// len(m.Raw)
+
+// saving header data
+
+//nolint:gosec // G115
+
+// checking that we have enough bytes to read header
+
+// first 2 bytes
+// second 2 bytes
+
+// attribute length
+// expected buffer length (with padding)
+
+// slicing again to simplify value read
+
+// checking size
+
+// RFC 8489:
+// - after MESSAGE-INTEGRITY, only MESSAGE-INTEGRITY-SHA256 and
+//   FINGERPRINT may follow.
+// - after MESSAGE-INTEGRITY-SHA256, if MESSAGE-INTEGRITY was absent,
+//   only FINGERPRINT may follow.
 
 // Write decodes message and return error if any.
 //
 // Any error is unrecoverable, but message could be partially decoded.
-func (m *Message) Write(tBuf []byte) (int, error) {
-	m.Raw = append(m.Raw[:0], tBuf...)
-
-	return len(tBuf), m.Decode()
-}
+func (m *Message) Write(tBuf []byte) (int, error) { _ = "STUB: not implemented"; return 0, nil }
 
 // CloneTo clones m to b securing any further m mutations.
-func (m *Message) CloneTo(b *Message) error {
-	b.Raw = append(b.Raw[:0], m.Raw...)
-
-	return b.Decode()
-}
+func (m *Message) CloneTo(b *Message) error { _ = "STUB: not implemented"; return nil }
 
 // MessageClass is 8-bit representation of 2-bit class of STUN Message Class.
 type MessageClass byte
@@ -539,20 +293,9 @@ var (
 	BindingError = NewType(MethodBinding, ClassErrorResponse) //nolint:gochecknoglobals
 )
 
-func (c MessageClass) String() string {
-	switch c {
-	case ClassRequest:
-		return "request"
-	case ClassIndication:
-		return "indication"
-	case ClassSuccessResponse:
-		return "success response"
-	case ClassErrorResponse:
-		return "error response"
-	default:
-		panic("unknown message class") //nolint
-	}
-}
+func (c MessageClass) String() string { _ = "STUB: not implemented"; return "" }
+
+//nolint
 
 // Method is uint16 representation of 12-bit STUN method.
 type Method uint16
@@ -575,32 +318,13 @@ const (
 	MethodConnectionAttempt Method = 0x000c
 )
 
-func methodName() map[Method]string {
-	return map[Method]string{
-		MethodBinding:          "Binding",
-		MethodAllocate:         "Allocate",
-		MethodRefresh:          "Refresh",
-		MethodSend:             "Send",
-		MethodData:             "Data",
-		MethodCreatePermission: "CreatePermission",
-		MethodChannelBind:      "ChannelBind",
+func methodName() map[Method]string { _ = "STUB: not implemented"; return nil }
 
-		// RFC 6062.
-		MethodConnect:           "Connect",
-		MethodConnectionBind:    "ConnectionBind",
-		MethodConnectionAttempt: "ConnectionAttempt",
-	}
-}
+// RFC 6062.
 
-func (m Method) String() string {
-	s, ok := methodName()[m]
-	if !ok {
-		// Falling back to hex representation.
-		s = fmt.Sprintf("0x%x", uint16(m))
-	}
+func (m Method) String() string { _ = "STUB: not implemented"; return "" }
 
-	return s
-}
+// Falling back to hex representation.
 
 // MessageType is STUN Message Type Field.
 type MessageType struct {
@@ -609,18 +333,12 @@ type MessageType struct {
 }
 
 // AddTo sets m type to t.
-func (t MessageType) AddTo(m *Message) error {
-	m.SetType(t)
-
-	return nil
-}
+func (t MessageType) AddTo(m *Message) error { _ = "STUB: not implemented"; return nil }
 
 // NewType returns new message type with provided method and class.
 func NewType(method Method, class MessageClass) MessageType {
-	return MessageType{
-		Method: method,
-		Class:  class,
-	}
+	_ = "STUB: not implemented"
+	return *new(MessageType)
 }
 
 const (
@@ -643,81 +361,59 @@ const (
 
 // Value returns bit representation of messageType.
 func (t MessageType) Value() uint16 {
+	_ = "STUB: not implemented"
 	//	 0                 1
 	//	 2  3  4 5 6 7 8 9 0 1 2 3 4 5
 	//	+--+--+-+-+-+-+-+-+-+-+-+-+-+-+
 	//	|M |M |M|M|M|C|M|M|M|C|M|M|M|M|
 	//	|11|10|9|8|7|1|6|5|4|0|3|2|1|0|
 	//	+--+--+-+-+-+-+-+-+-+-+-+-+-+-+
+	//
 	// Figure 3: Format of STUN Message Type Field
-
-	// Warning: Abandon all hope ye who enter here.
-	// Splitting M into A(M0-M3), B(M4-M6), D(M7-M11).
-	msg := uint16(t.Method)
-	a := msg & methodABits // A = M * 0b0000000000001111 (right 4 bits)
-	b := msg & methodBBits // B = M * 0b0000000001110000 (3 bits after A)
-	d := msg & methodDBits // D = M * 0b0000111110000000 (5 bits after B)
-
-	// Shifting to add "holes" for C0 (at 4 bit) and C1 (8 bit).
-	msg = a + (b << methodBShift) + (d << methodDShift)
-
-	// C0 is zero bit of C, C1 is first bit.
-	// C0 = C * 0b01, C1 = (C * 0b10) >> 1
-	// Ct = C0 << 4 + C1 << 8.
-	// Optimizations: "((C * 0b10) >> 1) << 8" as "(C * 0b10) << 7"
-	// We need C0 shifted by 4, and C1 by 8 to fit "11" and "7" positions
-	// (see figure 3).
-	c := uint16(t.Class)
-	c0 := (c & c0Bit) << classC0Shift
-	c1 := (c & c1Bit) << classC1Shift
-	class := c0 + c1
-
-	return msg + class
+	return 0
 }
+
+// Warning: Abandon all hope ye who enter here.
+// Splitting M into A(M0-M3), B(M4-M6), D(M7-M11).
+
+// A = M * 0b0000000000001111 (right 4 bits)
+// B = M * 0b0000000001110000 (3 bits after A)
+// D = M * 0b0000111110000000 (5 bits after B)
+
+// Shifting to add "holes" for C0 (at 4 bit) and C1 (8 bit).
+
+// C0 is zero bit of C, C1 is first bit.
+// C0 = C * 0b01, C1 = (C * 0b10) >> 1
+// Ct = C0 << 4 + C1 << 8.
+// Optimizations: "((C * 0b10) >> 1) << 8" as "(C * 0b10) << 7"
+// We need C0 shifted by 4, and C1 by 8 to fit "11" and "7" positions
+// (see figure 3).
 
 // ReadValue decodes uint16 into MessageType.
 func (t *MessageType) ReadValue(v uint16) {
+	_ = "STUB: not implemented"
 	// Decoding class.
 	// We are taking first bit from v >> 4 and second from v >> 7.
-	c0 := (v >> classC0Shift) & c0Bit
-	c1 := (v >> classC1Shift) & c1Bit
-	class := c0 + c1
-	t.Class = MessageClass(class)
-
-	// Decoding method.
-	a := v & methodABits                   // A(M0-M3)
-	b := (v >> methodBShift) & methodBBits // B(M4-M6)
-	d := (v >> methodDShift) & methodDBits // D(M7-M11)
-	m := a + b + d
-	t.Method = Method(m)
+	return
 }
 
-func (t MessageType) String() string {
-	return fmt.Sprintf("%s %s", t.Method, t.Class)
-}
+// Decoding method.
+// A(M0-M3)
+// B(M4-M6)
+// D(M7-M11)
+
+func (t MessageType) String() string { _ = "STUB: not implemented"; return "" }
 
 // Contains return true if message contain t attribute.
-func (m *Message) Contains(t AttrType) bool {
-	for _, a := range m.Attributes {
-		if a.Type == t {
-			return true
-		}
-	}
-
-	return false
-}
+func (m *Message) Contains(t AttrType) bool { _ = "STUB: not implemented"; return false }
 
 type transactionIDValueSetter [TransactionIDSize]byte
 
 // NewTransactionIDSetter returns new Setter that sets message transaction id
 // to provided value.
 func NewTransactionIDSetter(value [TransactionIDSize]byte) Setter {
-	return transactionIDValueSetter(value)
+	_ = "STUB: not implemented"
+	return *new(Setter)
 }
 
-func (t transactionIDValueSetter) AddTo(m *Message) error {
-	m.TransactionID = t
-	m.WriteTransactionID()
-
-	return nil
-}
+func (t transactionIDValueSetter) AddTo(m *Message) error { _ = "STUB: not implemented"; return nil }
